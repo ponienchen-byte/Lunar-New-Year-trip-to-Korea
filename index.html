@@ -1,0 +1,2422 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>春節｜2027 韓國迎春・賀歲精選 5 日遊 業務銷售簡報</title>
+
+  <!-- 內嵌實景照片與匯出設定（匯出離線成品 HTML 時將自動寫入此處） -->
+  <script id="embedded-photos-config">window.EMBEDDED_PHOTOS = {}; window.EXPORT_CONFIG = { clientOnly: false };</script>
+
+  <!-- 字體：Inter + Noto Sans TC + Noto Serif TC -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN 與春節雜誌風設計語彙設定 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Inter"', '"Noto Sans TC"', 'sans-serif'],
+            serif: ['"Noto Serif TC"', 'serif']
+          },
+          colors: {
+            crimson: {
+              50: '#FDF2F2',
+              100: '#FCE4E4',
+              200: '#F8C6C6',
+              500: '#B82929',
+              600: '#9B1C1C',
+              700: '#7F1616',
+              800: '#641111',
+              900: '#490C0C',
+              950: '#2E0707'
+            },
+            gold: {
+              50: '#FDF9EE',
+              100: '#FAF0D3',
+              200: '#F2DDA3',
+              300: '#E5C46F',
+              400: '#D6AC4C',
+              500: '#C89B3C',
+              600: '#A57C24',
+              700: '#7F5D17'
+            },
+            ivory: {
+              50: '#FFFFFF',
+              100: '#FDF8F2',
+              200: '#F5ECDF',
+              300: '#E6D6BE'
+            },
+            ink: '#241D1B'
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* 春節雜誌風：宣紙暖米白底色 + 淡雅金紅吉祥幾何紋與柔和光暈 */
+    body {
+      background-color: #FDF8F2;
+      background-image:
+        radial-gradient(circle at 12% 10%, rgba(200, 155, 60, 0.11) 0%, transparent 42%),
+        radial-gradient(circle at 88% 18%, rgba(155, 28, 28, 0.08) 0%, transparent 38%),
+        radial-gradient(circle at 80% 85%, rgba(200, 155, 60, 0.09) 0%, transparent 45%),
+        repeating-linear-gradient(45deg, rgba(200, 155, 60, 0.032) 0px, rgba(200, 155, 60, 0.032) 1px, transparent 1px, transparent 30px),
+        repeating-linear-gradient(-45deg, rgba(155, 28, 28, 0.024) 0px, rgba(155, 28, 28, 0.024) 1px, transparent 1px, transparent 30px);
+    }
+
+    /* 隱藏橫向捲軸但保持滑順捲動 */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* 頁面進場微動畫 */
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in { animation: fadeSlideUp 0.28s ease-out forwards; }
+
+    /* 拖曳檔案進入圖片插槽時的高亮樣式 */
+    .drop-active {
+      outline: 3px dashed #C89B3C !important;
+      outline-offset: -4px;
+      box-shadow: 0 0 0 4px rgba(200, 155, 60, 0.35), 0 12px 28px rgba(155, 28, 28, 0.25) !important;
+      transform: scale(1.01);
+    }
+    .drop-active .drop-hint-overlay {
+      opacity: 1 !important;
+      pointer-events: none;
+    }
+
+    /* 紅金精緻陰影框 */
+    .cny-card {
+      box-shadow: 0 1px 2px rgba(46, 7, 7, 0.04), 0 10px 28px -10px rgba(73, 12, 12, 0.12);
+    }
+  </style>
+</head>
+
+<body class="text-ink font-sans antialiased selection:bg-crimson-600 selection:text-white min-h-screen">
+
+  <!-- 隱藏共用檔案上傳器（支援點擊任何景點卡片即刻選檔） -->
+  <input id="global-photo-input" type="file" accept="image/*" class="hidden" />
+
+  <!-- 主應用程式渲染根節點（匯出時會清空此容器確保離線檔案輕量且乾淨重繪） -->
+  <div id="app"></div>
+
+  <!-- 彈窗渲染根節點（批次實景照管理 / 匯出成品網頁 / 確認重置） -->
+  <div id="modal-root"></div>
+
+  <!-- 自訂浮動通知 Toast（不使用原生 alert/confirm） -->
+  <div id="toast" class="fixed top-24 right-4 z-[90] max-w-sm transform transition-all duration-300 translate-x-full opacity-0 pointer-events-none">
+    <div class="bg-crimson-950 text-white px-4 py-3.5 rounded-2xl shadow-2xl border border-gold-400 flex items-center gap-3">
+      <span id="toast-icon" class="w-8 h-8 rounded-xl bg-gold-500/20 text-gold-300 flex items-center justify-center text-base shrink-0 font-bold">✓</span>
+      <p id="toast-msg" class="text-xs sm:text-sm font-bold text-gold-50 leading-snug"></p>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================================
+    // 1. 完整 6 支行程 100% 精準原始資料庫（嚴格對齊每項日期、航班、餐標、飯店）
+    // =========================================================================
+    const STORAGE_KEY = 'cny_korea_2027_photos_v1';
+
+    const TOURS = [
+      // -----------------------------------------------------------------------
+      // ① 迎春首爾清州鐵道戲雪樂天好好逛5日
+      // -----------------------------------------------------------------------
+      {
+        id: 'tour1',
+        numBadge: '①',
+        tabLabel: '① 迎春｜首爾清州5日',
+        shortTitle: '迎春｜首爾清州5日',
+        title: '迎春首爾清州鐵道戲雪樂天好好逛5日',
+        series: 'yingchun',
+        seriesLabel: '🌸 迎春超值系列',
+        origin: 'taoyuan',
+        originLabel: '桃園出發',
+        code: '27JK102ZEE-ZP',
+        minPrice: 24888,
+        priceText: '$24,888 起',
+        hasConfirmed: false,
+        confirmedText: '1～2月 7 檔熱烈報名',
+        coverSlotName: '行程封面實景（建議放：樂天世界城堡 / 滑雪場）',
+        coverTheme: 'snow',
+        airlineSummary: '易斯達航空（早去晚回足5天）',
+        targetAudience: '小資族、寒假親子、想一次玩滑雪＋樂天世界＋四大商圈客群',
+        salesPitch: '不到 2 萬 5 就能早去晚回玩足 5 整天！包含山井湖黃色小鴨冰上雪橇、滑雪(含安全帽雪具)、採草莓、樂天世界一票到底，第 4 晚還重磅升等國際五星 SONO 飯店，CP 值全場最炸！',
+        summaryPoints: [
+          '山井湖雪橇慶典(贈黃色小鴨冰上雪橇)＋歡樂滑雪(含雪具安全帽)＋季節採草莓(250-300g)',
+          '冰雪城堡・樂天世界(含門票+自由券)＋COEX星光圖書館＋義王唯一環湖鐵道自行車',
+          '弘大、聖水洞、明洞、廣藏市場星巴克全逛遍，第4晚升等五星 SONO CLAM GOYANG'
+        ],
+        hotelOneLine: '前3晚連泊金浦RAMADA/MARINA BAY＋第4晚升等五星 SONO CLAM GOYANG',
+        mealOneLine: '明倫進士碳烤豬排吃到飽(₩19,000)＋米其林滿足五香豬腳(₩17,000)＋百年蔘雞湯(₩17,000)',
+        defaultDateIdx: 1,
+        departures: [
+          { date: '2027/01/02', day: '六', confirmed: false, avail: 19, total: 20, status: '報名', price: 25588, tag: '元旦週末檔' },
+          { date: '2027/01/04', day: '一', confirmed: false, avail: 19, total: 20, status: '報名', price: 24888, tag: '👑 全系列最低價', lowest: true },
+          { date: '2027/01/09', day: '六', confirmed: false, avail: 19, total: 20, status: '報名', price: 25588, tag: '週六出發省假' },
+          { date: '2027/02/02', day: '二', confirmed: false, avail: 15, total: 20, status: '報名', price: 29888, tag: '迎春寒假檔' },
+          { date: '2027/02/08', day: '一', confirmed: false, avail: 15, total: 20, status: '報名', price: 29888, tag: '春節連假檔' },
+          { date: '2027/02/13', day: '六', confirmed: false, avail: 19, total: 20, status: '報名', price: 25888, tag: '新春週末超值' },
+          { date: '2027/02/15', day: '一', confirmed: false, avail: 19, total: 20, status: '報名', price: 25888, tag: '新春特惠檔' }
+        ],
+        flight: {
+          airline: '易斯達航空',
+          badges: ['早去晚回玩足5整天', '首日安排韓式汗蒸幕＋貼心早餐', '參考航班時間僅供參考，以說明會為準'],
+          out: { no: 'ZE782', dep: '桃園機場', depTime: '02:35', arr: '清州機場', arrTime: '06:05', dur: '約 2 小時 30 分', note: '抵達即享韓式汗蒸幕放鬆＋韓式飯捲與香蕉牛奶早餐' },
+          in: { no: 'ZE781', dep: '清州機場', depTime: '23:55', arr: '桃園機場', arrTime: '01:25+1', dur: '約 2 小時 30 分', note: '第5天暢玩樂天世界＋COEX星光圖書館後晚班機返台' }
+        },
+        highlights: [
+          {
+            slot: 'h0', theme: 'snow',
+            tag: '冬季限定必玩',
+            title: '山井湖雪橇慶典・黃色小鴨冰上雪橇列車',
+            desc: '冬季限定必玩超人氣冰雪慶典，特別贈送超萌「黃色小鴨冰上雪橇列車」，搭配漢灘江柱狀節理水上步道拍出冬日夢幻大片！'
+          },
+          {
+            slot: 'h1', theme: 'berry',
+            tag: '戲雪＋採果雙享',
+            title: '歡樂滑雪＋季節採草莓',
+            desc: '含雪杖、雪鞋、雪橇、安全帽（或歡樂滑雪盆）零門檻輕鬆玩雪；加碼溫室季節採草莓，每人可帶走約 250-300g 鮮甜草莓！'
+          },
+          {
+            slot: 'h2', theme: 'castle',
+            tag: '樂園＋地標打卡',
+            title: '冰雪城堡・樂天世界＋COEX星光圖書館',
+            desc: '包含樂天世界門票＋自由券一票暢玩到底，外觀打卡 SEOUL SKY 樂天塔，再訪超壯觀首爾必拍地標 COEX 星光圖書館。'
+          },
+          {
+            slot: 'h3', theme: 'city',
+            tag: '環湖鐵道＋潮流商圈',
+            title: '義王環湖鐵道自行車＋聖水洞＆廣藏市場',
+            desc: '騎乘韓國唯一環湖路線義王鐵道自行車（四人乙台），再一次制霸最新星巴克廣藏市場店、聖水洞、明洞與弘大京義線林蔭道！'
+          }
+        ],
+        hotels: [
+          { nights: 'Day 1 ～ Day 3（連泊 3 晚免搬行李）', badge: '市郊精選連泊3晚', upgrade: false, name: '金浦 RAMADA 或 金浦 MARINA BAY 或同級', desc: '前 3 晚連住同飯店省去每天整理行李的辛勞，國際連鎖品牌或遊艇碼頭景觀房型，含每日飯店早餐。' },
+          { nights: 'Day 4（壓軸升等 1 晚國際五星）', badge: '★ 升等國際五星酒店', upgrade: true, name: '五星 SONO CLAM GOYANG 或同級', desc: '第 4 晚重磅升等高陽國際五星酒店，寬敞星級客房為整趟旅程畫下最奢華的句點！' }
+        ],
+        mealsHighlight: [
+          { day: 'Day 2 晚', name: '【明倫進士】韓式碳烤豬排吃到飽', price: '₩19,000/人', badge: '人氣吃到飽' },
+          { day: 'Day 4 晚', name: '【米其林推薦】滿足五香豬腳+韓式餃子鍋', price: '₩17,000/人', badge: '米其林推薦' },
+          { day: 'Day 4 午', name: '【百年土種】滋補蔘雞湯', price: '₩17,000/人', badge: '養生名店' },
+          { day: 'Day 3 晚', name: '特別安排 韓式炸雞(每房乙份)+軟性飲料(每人乙瓶)', price: '₩24,000/房', badge: '貼心宵夜' },
+          { day: 'Day 1/2/3/5', name: 'JOMARU馬鈴薯豬骨鍋 / 什錦香菇鍋 / 春川辣炒雞排 / 金剛部隊鍋', price: '₩12,000/人', badge: '韓式必吃' },
+          { day: 'Day 1/5', name: '貼心早餐飯捲+香蕉牛奶(₩8,000) ＋ 兩餐美食探索代金各 ₩10,000', price: '含餐＋現金券', badge: '自由度高' }
+        ],
+        itinerary: [
+          { day: 1, route: '桃園 ✈ 清州 → 韓式汗蒸幕 → 義王鐵道自行車(四人乙台) → 京義線林蔭道＋弘大商圈', spots: ['韓式汗蒸幕', '義王鐵道自行車(四人乙台)', '京義線林蔭道', '弘大商圈'], b: '【貼心早餐】韓式飯捲+香蕉牛奶(₩8,000/人)', l: '【JOMARU】馬鈴薯燉豬骨鍋(₩12,000/人)', d: '方便逛街發放₩10,000/人美食探索', hotel: '金浦RAMADA 或 金浦MARINA BAY 或同級' },
+          { day: 2, route: '漢灘江柱狀節理公園＋漢灘江水上之路(水上步道) → 山井湖雪橇慶典(贈送黃色小鴨冰上雪橇列車)', spots: ['漢灘江柱狀節理公園', '漢灘江水上之路(水上步道)', '山井湖雪橇慶典(贈黃色小鴨冰上雪橇列車)'], b: '飯店內用', l: '【鄉村風味】什錦香菇火鍋+季節小菜(₩12,000/人)', d: '【明倫進士】韓式碳烤豬排吃到飽(₩19,000/人)', hotel: '金浦RAMADA 或 金浦MARINA BAY 或同級' },
+          { day: 3, route: '歡樂滑雪(含雪杖、雪鞋、雪橇、安全帽)或滑雪盆 → 季節限定採草莓(每人帶走約250-300g) → 聖水洞逛街', spots: ['歡樂滑雪(含雪杖/雪鞋/雪橇/安全帽)或滑雪盆', '季節限定採草莓(約250-300g)', '聖水洞逛街'], b: '飯店內用', l: '【韓國美食100選】春川辣炒雞排+愛心炒飯(₩12,000/人)', d: '逛街自理，特別安排韓式炸雞(每房乙份)+軟性飲料(每人乙瓶)(₩24,000/房)', hotel: '金浦RAMADA 或 金浦MARINA BAY 或同級' },
+          { day: 4, route: '時尚彩妝店 → 海苔博物館(含海苔湯+韓式飯糰+韓式卷壽司) → 廣藏市場＋星巴克廣藏市場店(飲品自理) → 明洞商圈', spots: ['時尚彩妝店', '海苔博物館(海苔湯+飯糰+卷壽司)', '廣藏市場', '星巴克廣藏市場店', '明洞商圈'], b: '飯店內用', l: '【百年土種】滋補蔘雞湯(₩17,000/人)', d: '【米其林推薦】滿足五香豬腳+韓式餃子鍋(₩17,000/人)', hotel: '五星 SONO CLAM GOYANG 或同級' },
+          { day: 5, route: '樂天世界(含門票+自由券) → SEOUL SKY樂天塔(外觀) → COEX星光圖書館 → 清州 ✈ 桃園', spots: ['樂天世界(含門票+自由券)', 'SEOUL SKY樂天塔(外觀)', 'COEX星光圖書館'], b: '飯店內用', l: '樂園遊玩發放₩10,000/人', d: '【金剛】韓式部隊鍋(₩12,000/人)', hotel: '溫暖的家' }
+        ]
+      },
+
+      // -----------------------------------------------------------------------
+      // ② 迎春高雄釜山冬雪採果膠囊汗蒸幕好好逛5日
+      // -----------------------------------------------------------------------
+      {
+        id: 'tour2',
+        numBadge: '②',
+        tabLabel: '② 迎春｜高雄釜山5日',
+        shortTitle: '迎春｜高雄釜山5日',
+        title: '迎春高雄釜山冬雪採果膠囊汗蒸幕好好逛5日',
+        series: 'yingchun',
+        seriesLabel: '🌸 迎春超值系列',
+        origin: 'kaohsiung',
+        originLabel: '高雄出發',
+        code: '27JK1207CV-ZF',
+        minPrice: 24900,
+        priceText: '$24,900 起',
+        hasConfirmed: false,
+        confirmedText: '高雄小港直飛 2 檔精選',
+        coverSlotName: '行程封面實景（建議放：海雲台天空膠囊列車）',
+        coverTheme: 'ocean',
+        airlineSummary: '濟州航空（高雄直飛・不飛紅眼）',
+        targetAudience: '南部鄉親免北上、不想搭紅眼班機、喜歡連住4晚不搬行李客群',
+        salesPitch: '高雄小港直飛釜山免搭高鐵北上！四晚全程連住市區免換飯店，連滑雪「雪衣褲」跟五星海景汗蒸幕 CLUB D OASIS 全部包辦，採草莓更是豪邁給到 450~500g！',
+        summaryPoints: [
+          '海雲台 Blueline Park 天空膠囊列車(四人一台)＋全新改版青沙浦天空步道踏石觀景台',
+          '五星無敵海景汗蒸幕 CLUB D OASIS(含入場券+專用衣/毛巾)＋THE BAY 101 百萬夜景',
+          'EdenVally 滑雪體驗(含雪衣褲免自費！)＋採草莓每人帶走 450~500g＋全程四晚連泊'
+        ],
+        hotelOneLine: '全程四晚連泊免換飯店！Arban City / Cotice / Busan City / Tower hill 等市區精選',
+        mealOneLine: '青沙浦浮誇系烤貝扇貝+海鮮拉麵(₩25,000)＋藍絲帶辣炒章魚蝦鍋(₩18,000)＋首晚贈炸雞',
+        defaultDateIdx: 0,
+        departures: [
+          { date: '2027/02/01', day: '一', confirmed: false, avail: 19, total: 20, status: '報名', price: 24900, tag: '👑 高雄直飛最低價', lowest: true },
+          { date: '2027/02/10', day: '三', confirmed: false, avail: 19, total: 20, status: '報名', price: 25900, tag: '春節假期熱門檔' }
+        ],
+        flight: {
+          airline: '濟州航空',
+          badges: ['高雄小港直飛釜山', '午去午回不飛紅眼最輕鬆', '全程四晚連泊免搬行李'],
+          out: { no: '7C6256', dep: '高雄小港機場', depTime: '17:05', arr: '釜山金海機場', arrTime: '20:35', dur: '約 2 小時 30 分', note: '首晚抵達飯店貼心送上每房乙份韓式炸雞＋每人乙瓶飲料' },
+          in: { no: '7C6255', dep: '釜山金海機場', depTime: '14:05', arr: '高雄小港機場', arrTime: '16:05', dur: '約 3 小時 0 分', note: '下午 4 點輕鬆返抵高雄，不熬夜不趕行程' }
+        },
+        highlights: [
+          {
+            slot: 'h0', theme: 'ocean',
+            tag: '釜山最夯必搭',
+            title: '海雲台 Blueline Park 天空膠囊列車',
+            desc: '特別安排四人一台可愛彩色天空膠囊列車漫遊絕美海雲台海岸線，順遊全新改版青沙浦天空步道踏石觀景台！'
+          },
+          {
+            slot: 'h1', theme: 'spa',
+            tag: '五星療癒享受',
+            title: '五星無敵海景汗蒸幕 CLUB D OASIS',
+            desc: '貼心包含入場券＋專用汗蒸衣及毛巾，面朝海雲台蔚藍大海享受最新奢華五星級海景汗蒸幕療癒時光。'
+          },
+          {
+            slot: 'h2', theme: 'snow',
+            tag: '全配含雪衣褲',
+            title: 'EdenVally 伊甸谷滑雪＋大份量採草莓',
+            desc: '含雪杖、雪橇、雪鞋，連「雪衣褲」都全包幫您省下現場租借費！冬季採草莓更是豪邁每人可帶走 450~500g！'
+          },
+          {
+            slot: 'h3', theme: 'night',
+            tag: '海濱秘境＋百萬夜景',
+            title: '白淺灘文化村＋The Bay 101百萬夜景',
+            desc: '漫步韓版聖托里尼「白淺灘文化村」、草梁故事路 168 階梯，賞 The Bay 101 百萬高樓倒影夜景，暢逛西面與南浦洞！'
+          }
+        ],
+        hotels: [
+          { nights: 'Day 1 ～ Day 4（全程四晚連泊免換飯店！）', badge: '★ 全程4晚連住免搬行李', upgrade: true, name: 'Arban City Hotel 或 Cotice 或 Busan City 或 Allzib Archive 4H Busan 或 Tower hill 或 Sota Suite Busan Seomyeon 或同級', desc: '整趟旅程 4 晚皆入住同一間市區精選飯店，完全不必打包換房，晚上自由逛西面或南浦洞夜市最愜意！' }
+        ],
+        mealsHighlight: [
+          { day: 'Day 3 午', name: '【青沙浦浮誇系】韓式各式烤貝、扇貝(四人一套)+海鮮拉麵(兩人一份)', price: '₩25,000/人', badge: '高標海味王牌' },
+          { day: 'Day 4 午', name: '【藍絲帶推薦】辣炒章魚蝦鍋+白飯+季節小菜', price: '₩18,000/人', badge: '韓國藍絲帶名店' },
+          { day: 'Day 3 晚', name: '【達人推薦】水邊豬肉湯飯+白切肉(四人一份)', price: '₩14,000/人', badge: '釜山必吃靈魂' },
+          { day: 'Day 2 午', name: '【地區美食33選】韓式部隊鍋', price: '₩12,000/人', badge: '暖胃經典' },
+          { day: 'Day 1 晚', name: '韓式炸雞餐(每房一份+飲料每人乙瓶隨機)', price: '₩24,000/房', badge: '迎賓宵夜' },
+          { day: 'Day 5 午', name: '發放每人韓幣 ₩8,000 於機場美食大搜尋', price: '₩8,000/人', badge: '現金代金' }
+        ],
+        itinerary: [
+          { day: 1, route: '高雄小港國際機場 ✈ 釜山金海國際機場 → 下榻飯店', spots: ['高雄小港直飛釜山金海', '入住市區連泊飯店'], b: '敬請自理', l: '敬請自理', d: '韓式炸雞餐(每房一份+飲料每人乙瓶隨機)(₩24,000/房)', hotel: '市區精選飯店(四晚連泊)' },
+          { day: 2, route: '採草莓體驗(每人可帶走450~500g) → EdenVally滑雪體驗(含雪杖、雪橇、雪鞋、雪衣褲) → 西面鬧區', spots: ['採草莓體驗(每人帶走450~500g)', 'EdenVally滑雪(含雪杖/雪橇/雪鞋/雪衣褲)', '西面鬧區'], b: '飯店內用', l: '【地區美食33選】韓式部隊鍋(₩12,000/人)', d: '逛街自理', hotel: '市區精選飯店(四晚連泊)' },
+          { day: 3, route: '海雲台天空膠囊(四人一台) → 青沙浦天空步道踏石觀景台 → CLUB D OASIS無敵海景汗蒸幕(含入場券+專用衣、毛巾) → THE BAY 101夜景', spots: ['海雲台天空膠囊(四人一台)', '青沙浦天空步道踏石觀景台', 'CLUB D OASIS無敵海景汗蒸幕', 'THE BAY 101夜景'], b: '飯店內用', l: '【青沙浦浮誇系】韓式各式烤貝、扇貝(四人一套)+海鮮拉麵(兩人一份)(₩25,000/人)', d: '【達人推薦】水邊豬肉湯飯+白切肉(四人一份)(₩14,000/人)', hotel: '市區精選飯店(四晚連泊)' },
+          { day: 4, route: '時尚彩妝店 → 草梁故事路+168階梯 → BIFF電影廣場+光復洞商圈+國際市場', spots: ['時尚彩妝店', '草梁故事路+168階梯', 'BIFF電影廣場', '光復洞商圈', '國際市場'], b: '飯店內用', l: '【藍絲帶推薦】辣炒章魚蝦鍋+白飯+季節小菜(₩18,000/人)', d: '逛街自理', hotel: '市區精選飯店(四晚連泊)' },
+          { day: 5, route: '白淺灘文化村 → 釜山金海國際機場 ✈ 高雄小港國際機場', spots: ['白淺灘文化村'], b: '飯店內用', l: '發放每人₩8,000於機場美食大搜尋', d: '敬請自理', hotel: '溫暖的家' }
+        ]
+      },
+
+      // -----------------------------------------------------------------------
+      // ③ 迎春經典濟州萬豪自助餐好好逛5日
+      // -----------------------------------------------------------------------
+      {
+        id: 'tour3',
+        numBadge: '③',
+        tabLabel: '③ 迎春｜經典濟州5日',
+        shortTitle: '迎春｜經典濟州5日',
+        title: '迎春經典濟州萬豪自助餐好好逛5日',
+        series: 'yingchun',
+        seriesLabel: '🌸 迎春超值系列',
+        origin: 'taoyuan',
+        originLabel: '桃園出發',
+        code: '27JK127ZEP-ZP',
+        minPrice: 26900,
+        priceText: '$26,900 起',
+        hasConfirmed: true,
+        confirmedText: '🔥 1/22(額滿)、1/25(剩2席) 已成行',
+        coverSlotName: '行程封面實景（建議放：城山日出峰 / 神話世界萬豪）',
+        coverTheme: 'island',
+        airlineSummary: '易斯達航空（早去晚回當日抵台）',
+        targetAudience: '海島渡假愛好者、重視連住2晚國際五星萬豪＋龍蝦牛排吃到飽客群',
+        salesPitch: '不到 2 萬 7 保證升等連住 2 晚「濟州神話世界萬豪」＋豪吃餐標 ₩115,000 藍鼎廳龍蝦鮑魚牛排酒水暢飲！1/22 已滿團、1/25 已成行最後 2 席，共 12 檔出發最好挑！',
+        summaryPoints: [
+          '升等連住 2 晚五星「濟州神話世界萬豪」＋Day 4 全日自由活動贈神話公園三項券',
+          'KCIA 票選第一【藍鼎廳】頂級海鮮自助餐(₩115,000/人！龍蝦、鮑魚、牛排、酒水暢飲)',
+          '牛島(含船票+巴士+贈花生冰淇淋)＋城山日出峰＋9.81重力賽車2次＋雪綠茶園霜淇淋'
+        ],
+        hotelOneLine: '前2晚市區精選飯店 ＋ 後2晚升等連住國際五星【濟州神話世界萬豪】',
+        mealOneLine: '藍鼎廳龍蝦鮑魚牛排百匯(₩115,000/人)＋濟州黑豬肉烤肉大餐(₩29,500)＋鮑魚海鮮鍋(₩18,000)',
+        defaultDateIdx: 1,
+        departures: [
+          { date: '2027/01/22', day: '五', confirmed: true, avail: 1, total: 20, status: '額滿', price: 27900, tag: '🔥 已成行・額滿' },
+          { date: '2027/01/25', day: '一', confirmed: true, avail: 2, total: 20, status: '報名', price: 27900, tag: '🔥 已成行・搶最後席次' },
+          { date: '2027/01/27', day: '三', confirmed: false, avail: 9, total: 20, status: '報名', price: 27900, tag: '熱銷過半推薦' },
+          { date: '2027/01/29', day: '五', confirmed: false, avail: 19, total: 20, status: '報名', price: 27900, tag: '週五出發檔' },
+          { date: '2027/02/01', day: '一', confirmed: false, avail: 19, total: 20, status: '報名', price: 26900, tag: '👑 超值最低價', lowest: true },
+          { date: '2027/02/10', day: '三', confirmed: false, avail: 19, total: 20, status: '報名', price: 30900, tag: '春節連假熱門檔' },
+          { date: '2027/02/12', day: '五', confirmed: false, avail: 19, total: 20, status: '報名', price: 27900, tag: '新春週末檔' },
+          { date: '2027/02/15', day: '一', confirmed: false, avail: 19, total: 20, status: '報名', price: 26900, tag: '👑 超值最低價', lowest: true },
+          { date: '2027/02/17', day: '三', confirmed: false, avail: 17, total: 20, status: '報名', price: 27900, tag: '2月精選推薦' },
+          { date: '2027/02/19', day: '五', confirmed: false, avail: 19, total: 20, status: '報名', price: 27900, tag: '週五渡假檔' },
+          { date: '2027/02/22', day: '一', confirmed: false, avail: 19, total: 20, status: '報名', price: 26900, tag: '👑 超值最低價', lowest: true },
+          { date: '2027/02/24', day: '三', confirmed: false, avail: 19, total: 20, status: '報名', price: 27900, tag: '228連假前夕' }
+        ],
+        flight: {
+          airline: '易斯達航空',
+          badges: ['直飛濟州僅約 2 小時', '早去晚回玩足 5 整天', '回程 23:50 當日抵台不跨夜'],
+          out: { no: 'ZE886', dep: '桃園機場', depTime: '02:50', arr: '濟州機場', arrTime: '06:05', dur: '約 2 小時 15 分', note: '抵達即享暖心濟州鮑魚粥早餐＋濟州海水汗蒸幕紓壓' },
+          in: { no: 'ZE885', dep: '濟州機場', depTime: '22:40', arr: '桃園機場', arrTime: '23:50', dur: '約 2 小時 10 分', note: '當晚 23:50 返抵桃園國際機場（當日抵台）' }
+        },
+        highlights: [
+          {
+            slot: 'h0', theme: 'luxury',
+            tag: '五星連泊＋頂級百匯',
+            title: '濟州神話世界萬豪連住2晚＋藍鼎廳頂級百匯',
+            desc: 'Day 4 整日自由活動贈送神話主題公園三項券，晚上豪享 ₩115,000 藍鼎廳龍蝦、鮑魚、牛排無限享用＋酒水暢飲！'
+          },
+          {
+            slot: 'h1', theme: 'island',
+            tag: '世界自然遺產跳島',
+            title: '牛島海洋公園＋城山日出峰',
+            desc: '包含渡輪船票＋環島觀光巴士輕鬆遊遍牛島絕美海岸，特別贈送人氣牛島特色花生冰淇淋，再訪經典城山日出峰！'
+          },
+          {
+            slot: 'h2', theme: 'tea',
+            tag: '飆速快感＋茶園甜品',
+            title: '9.81 PARK 無動力重力賽車＋雪綠茶園',
+            desc: '含 9.81 PARK 無動力賽車體驗券 2 次感受海景俯衝快感，漫步 O\'sulloc 雪綠茶園再贈送 innisfree 綠茶霜淇淋每人一支！'
+          },
+          {
+            slot: 'h3', theme: 'aqua',
+            tag: '親子網美全制霸',
+            title: '濟州 Aqua Planet 海洋世界＋東邊松堂童話村',
+            desc: '暢遊韓國最大海洋世界水族館、羊駝樂園（每人一份飼料）、七彩瑞士村、東邊松堂童話村星巴克旗艦店與梨湖紅白馬燈塔！'
+          }
+        ],
+        hotels: [
+          { nights: 'Day 1 ～ Day 2（前 2 晚市區精選）', badge: '市區精選連泊2晚', upgrade: false, name: 'AMOUREUX / BENIKEA / BLACK SANDS / PARK SIDE / HAEMA / JEJU IN / SIMS / SUN LAND 或同級', desc: '前 2 晚入住濟州市區便利精選酒店，輕鬆探索龍頭岩海岸與蓮洞購物商圈。' },
+          { nights: 'Day 3 ～ Day 4（後 2 晚升等國際五星連住）', badge: '★ 連住2晚神話世界萬豪', upgrade: true, name: '濟州神話世界萬豪 或同級', desc: '重磅升等連住 2 晚國際五星萬豪酒店！Day 4 享整日自由渡假時光、神話公園三項券，Day 5 享沒有晨喚的悠閒早晨！' }
+        ],
+        mealsHighlight: [
+          { day: 'Day 4 晚', name: 'KCIA票選第一【藍鼎廳自助餐】龍蝦、鮑魚、牛排任您吃＋酒水暢飲', price: '₩115,000/人', badge: '👑 頂級百匯王牌' },
+          { day: 'Day 5 晚', name: '黑豬肉烤肉(五花肉、豬頸肉)+白米飯+兩人一份大醬湯', price: '₩29,500/人', badge: '濟州必吃名物' },
+          { day: 'Day 3 午/晚', name: '【濟州限定】超彭派鮑魚章魚海鮮鍋 ／ 燉青花魚+鮑魚石鍋飯', price: '各 ₩18,000/人', badge: '雙饗鮑魚海味' },
+          { day: 'Day 1 晚', name: '【名店～秘苑】蔘雞湯', price: '₩18,000/人', badge: '人氣名店' },
+          { day: 'Day 5 午', name: '【純】蕎麥麵+明太魚片+白切肉(四人一份)', price: '₩17,000/人', badge: '特色道地' },
+          { day: 'Day 1/2', name: '濟州鮑魚粥(₩8,000) / 濟州豬肉湯麵(₩14,000) / 炸醬麵+糖醋肉(₩14,000) / 豆腐鍋(₩11,000)', price: '餐餐高規格', badge: '透明餐標' }
+        ],
+        itinerary: [
+          { day: 1, route: '桃園 ✈ 濟州 → 濟州海水汗蒸幕 → 龍頭岩+龍淵峽谷 → 彩虹海岸 → 梨湖紅白馬燈塔', spots: ['濟州海水汗蒸幕', '龍頭岩+龍淵峽谷', '彩虹海岸', '梨湖紅白馬燈塔'], b: '濟州鮑魚粥(₩8,000/人)', l: '【韓國美食100選】濟州豬肉湯麵+一口水餃(四人一份)(₩14,000/人)', d: '【名店～秘苑】蔘雞湯(₩18,000/人)', hotel: '市區精選飯店' },
+          { day: 2, route: '牛島(含船票+環島巴士+贈花生冰淇淋) → Aqua Planet海洋世界 → 城山日出峰 → 蓮洞商圈', spots: ['牛島(船票+環島巴士+贈花生冰淇淋)', 'Aqua Planet海洋世界', '城山日出峰', '蓮洞商圈'], b: '飯店內用', l: '韓式炸醬麵或炒碼麵+糖醋肉(四人一份)(₩14,000/人)', d: '韓式豆腐鍋+季節小菜(₩11,000/人)', hotel: '市區精選飯店' },
+          { day: 3, route: '時尚彩妝店 → 七彩瑞士村 → 羊駝樂園(每人一份飼料) → 東邊松堂童話村主題樂園+星巴克旗艦店 → 東門市場', spots: ['時尚彩妝店', '七彩瑞士村', '羊駝樂園(每人一份飼料)', '東邊松堂童話村+星巴克旗艦店', '東門市場'], b: '飯店內用', l: '【濟州限定】超彭派鮑魚章魚海鮮鍋(₩18,000/人)', d: '燉青花魚+鮑魚石鍋飯(₩18,000/人)', hotel: '濟州神話世界萬豪 或同級' },
+          { day: 4, route: '整日自由活動(不派車)－神話主題公園三項券(自由前往)－KCIA票選第一藍鼎廳頂級海鮮自助餐', spots: ['整日自由活動(不派車)', '神話主題公園三項券(自由前往)', '藍鼎廳頂級海鮮自助餐'], b: '飯店內用', l: '方便遊玩敬請自理', d: '【藍鼎廳自助餐】酒水暢飲、鮑魚、龍蝦、牛排任您吃(₩115,000/人)', hotel: '濟州神話世界萬豪 或同級' },
+          { day: 5, route: '享受沒有晨喚的早晨 → O\'sulloc雪綠茶園+innisfree玻璃小屋(贈綠茶霜淇淋) → 9.81 PARK無動力賽車(含體驗券2次) → 濟州 ✈ 桃園', spots: ['沒有晨喚的早晨', 'O\'sulloc雪綠茶園+innisfree玻璃小屋(贈霜淇淋)', '9.81 PARK無動力賽車(體驗券2次)'], b: '飯店內用', l: '【純】蕎麥麵+明太魚片+白切肉(四人一份)(₩17,000/人)', d: '黑豬肉烤肉(五花肉、豬頸肉)+白米飯+兩人一份大醬湯(₩29,500/人)', hotel: '溫暖的家' }
+        ]
+      },
+
+      // -----------------------------------------------------------------------
+      // ④ 賀歲首爾滑雪雙樂園塗鴉好好逛5日
+      // -----------------------------------------------------------------------
+      {
+        id: 'tour4',
+        numBadge: '④',
+        tabLabel: '④ 賀歲｜首爾雙樂園5日',
+        shortTitle: '賀歲｜首爾雙樂園5日',
+        title: '賀歲首爾滑雪雙樂園塗鴉好好逛5日',
+        series: 'hesui',
+        seriesLabel: '🧧 賀歲尊爵系列',
+        origin: 'taoyuan',
+        originLabel: '桃園出發',
+        code: '27JK206TRA-ZP',
+        minPrice: 46888,
+        priceText: '$46,888',
+        hasConfirmed: true,
+        confirmedText: '🔥 2/6(六) 春節黃金檔已成行！',
+        coverSlotName: '行程封面實景（建議放：韓國樂高樂園 / 景福宮韓服）',
+        coverTheme: 'castle',
+        airlineSummary: '酷航（傍晚出發免早起・含機上餐）',
+        targetAudience: '過年親子家庭首選、指定住樂高樂園飯店＋明洞鬧區四星連泊客群',
+        salesPitch: '2/6(六) 春節黃金檔「已成行」保證出團！傍晚搭酷航免早起熬夜，春節旺季保證入住「樂高樂園飯店」＋連住兩晚「明洞鬧區國際四星」，樂高樂園＋樂天世界＋水族館＋新塗鴉秀2.0 全含！',
+        summaryPoints: [
+          '亞洲唯一湖中樂高樂園(贈人偶DIY鑰匙圈)＋保證入住「樂高樂園飯店」親子尖叫！',
+          '雙樂園＋水族館：樂天世界(含自由券)＋樂天世界水族館雙門票＋贈新塗鴉秀 2.0',
+          '連住 2 晚近明洞鬧區四星(朝鮮福朋喜來登或相鐵喜普樂吉)＋景福宮傳統韓服＋滑雪'
+        ],
+        hotelOneLine: '1晚金浦飯店 ＋ 保證入住【樂高樂園飯店】1晚 ＋ 連住2晚【明洞鬧區國際四星】',
+        mealOneLine: '超澎派海鮮章魚貝殼鍋(₩25,000)＋明倫進士碳烤豬排(₩20,900)＋韓式一隻雞(₩17,000)',
+        defaultDateIdx: 0,
+        departures: [
+          { date: '2027/02/06', day: '六', confirmed: true, avail: 12, total: 24, status: '報名', price: 46888, tag: '🧧 春節黃金檔・已成行！', lowest: true }
+        ],
+        flight: {
+          airline: '酷航',
+          badges: ['傍晚出發免早起熬夜', '特別安排去程機上餐食', '第5天暢玩雙樂園晚班機返台'],
+          out: { no: 'TR872', dep: '桃園機場', depTime: '18:10', arr: '首爾仁川機場', arrTime: '21:45', dur: '約 2 小時 35 分', note: '特別安排去程機上餐食，下機入住飯店充分休息' },
+          in: { no: 'TR873', dep: '首爾仁川機場', depTime: '23:00', arr: '桃園機場', arrTime: '00:45+1', dur: '約 2 小時 45 分', note: '第5天完整暢玩樂天世界＋水族館後返台' }
+        },
+        highlights: [
+          {
+            slot: 'h0', theme: 'lego',
+            tag: '保證入住主題飯店',
+            title: '亞洲唯一湖中樂高樂園＋保證入住樂高樂園飯店',
+            desc: '春節旺季保證入住夢幻「樂高樂園飯店」！暢玩春川湖中 LEGOLAND，再特別安排「樂高人偶 DIY 專屬鑰匙圈」親子首選！'
+          },
+          {
+            slot: 'h1', theme: 'castle',
+            tag: '樂園＋水族館雙門票',
+            title: '暢遊樂天世界＋樂天世界水族館雙門票',
+            desc: '一次包含樂天世界門票＋自由券與樂天世界水族館雙重門票，外觀打卡 SEOUL SKY 樂天塔並逛遍樂天世界塔購物中心。'
+          },
+          {
+            slot: 'h2', theme: 'snow',
+            tag: '戲雪＋韓服＋塗鴉秀',
+            title: '冬季滑雪體驗＋海苔飯捲DIY＆傳統韓服',
+            desc: '含雪杖、雪橇、雪鞋或雪盆二擇一輕鬆戲雪，體驗傳統韓服與海苔飯捲 DIY，再特別贈送驚喜不斷的「新塗鴉秀 2.0」！'
+          },
+          {
+            slot: 'h3', theme: 'palace',
+            tag: '古宮巡禮＋明洞四星',
+            title: '米其林指南景福宮＋明洞四星連泊2晚',
+            desc: '探訪米其林指南推薦景福宮、HiKR 好客空間、明星激推西巡邏街與聖水洞，晚上連住兩晚近明洞鬧區國際四星超好逛！'
+          }
+        ],
+        hotels: [
+          { nights: 'Day 1（首晚輕鬆入住）', badge: '嚴選金浦飯店', upgrade: false, name: '金浦 RAMADA 或 金浦 MARINA BAY 或同級', desc: '抵達仁川機場後舒適入住，養足精神展開春節賀歲之旅。' },
+          { nights: 'Day 2（保證入住 1 晚夢幻主題飯店）', badge: '★ 保證入住 樂高樂園飯店', upgrade: true, name: '保證入住 樂高樂園飯店', desc: '過年超搶手！保證入住樂高主題飯店，給孩子永生難忘的賀歲大禮。' },
+          { nights: 'Day 3 ～ Day 4（連住 2 晚近明洞鬧區四星）', badge: '★ 明洞國際四星連泊2晚', upgrade: true, name: '首爾明洞朝鮮福朋喜來登飯店 或 首爾明洞相鐵喜普樂吉飯店 或同級', desc: '連住兩晚市中心明洞商圈國際四星級酒店，下樓即享首爾最強美食與購物！' }
+        ],
+        mealsHighlight: [
+          { day: 'Day 4 午', name: '【超澎派】海鮮章魚貝殼鍋', price: '₩25,000/人', badge: '賀歲海味大餐' },
+          { day: 'Day 5 晚', name: '【明倫進士】韓式碳烤豬排吃到飽', price: '₩20,900/人', badge: '吃到飽壓軸' },
+          { day: 'Day 3 晚', name: '【韓國美食百選】韓式一隻雞+Q彈刀削麵+雞湯粥', price: '₩17,000/人', badge: '首爾必吃名店' },
+          { day: 'Day 4 晚', name: '【米其林推薦】滿足五香豬腳+韓式餃子鍋(四人乙套)', price: '₩17,000/人', badge: '米其林推薦' },
+          { day: 'Day 2 午/晚', name: '韓式菇菇豬肉火鍋(₩15,000) ／ 春川辣炒雞排+愛心炒飯(₩12,000)', price: '₩15,000 / ₩12,000', badge: '暖冬鍋物' },
+          { day: 'Day 3/5 午', name: '樂園與商場內方便遊玩，各發放每人韓幣 ₩10,000 美食探索', price: '共 ₩20,000 代金', badge: '彈性覓食' }
+        ],
+        itinerary: [
+          { day: 1, route: '桃園 ✈ 仁川', spots: ['酷航傍晚輕鬆直飛仁川', '特別安排去程機上餐食'], b: '—', l: '—', d: '【特別安排】機上餐食', hotel: '金浦RAMADA 或 金浦MARINA BAY 或同級' },
+          { day: 2, route: '韓國文化體驗(海苔飯捲DIY+傳統韓服+韓式小點心) → 冬季限定滑雪體驗(含雪杖、雪橇、雪鞋或雪盆二擇一)', spots: ['海苔飯捲DIY+傳統韓服+韓式小點心', '冬季滑雪體驗(雪具或雪盆二擇一)'], b: '飯店內用', l: '【鄉村風味】韓式菇菇豬肉火鍋(₩15,000/人)', d: '【韓國美食百選】春川辣炒雞排+愛心炒飯(₩12,000/人)', hotel: '保證入住 樂高樂園飯店' },
+          { day: 3, route: '樂高樂園LEGOLAND(贈樂高人偶DIY專屬鑰匙圈) → 聖水洞 → 特別贈送新塗鴉秀2.0', spots: ['樂高樂園LEGOLAND(贈人偶DIY鑰匙圈)', '聖水洞', '新塗鴉秀2.0(特別贈送)'], b: '飯店內用', l: '發放每人₩10,000於樂園內美食探索', d: '【韓國美食百選】韓式一隻雞+Q彈刀削麵+雞湯粥(₩17,000/人)', hotel: '明洞鬧區四星(朝鮮福朋喜來登 或 相鐵喜普樂吉 或同級)' },
+          { day: 4, route: '時尚彩妝店 → HiKR好客空間 → 景福宮(米其林指南推薦) → 西巡邏街 → 明洞商圈', spots: ['時尚彩妝店', 'HiKR好客空間', '景福宮(米其林指南推薦)', '西巡邏街', '明洞商圈'], b: '飯店內用', l: '【超澎派】海鮮章魚貝殼鍋(₩25,000/人)', d: '【米其林推薦】滿足五香豬腳+韓式餃子鍋(四人乙套)(₩17,000/人)', hotel: '明洞鬧區四星(連住2晚)' },
+          { day: 5, route: '樂天世界+樂天世界水族館(含門票+自由券)+SEOUL SKY樂天塔(外觀) → 樂天世界塔購物中心 → 仁川 ✈ 桃園', spots: ['樂天世界(含門票+自由券)', '樂天世界水族館(含門票)', 'SEOUL SKY樂天塔(外觀)', '樂天世界塔購物中心'], b: '飯店內用', l: '發放每人₩10,000於商場美食探索', d: '【明倫進士】韓式碳烤豬排吃到飽(₩20,900/人)', hotel: '溫暖的家' }
+        ]
+      },
+
+      // -----------------------------------------------------------------------
+      // ⑤ 賀歲釜山四星滑車戲雪膠囊好好逛5日
+      // -----------------------------------------------------------------------
+      {
+        id: 'tour5',
+        numBadge: '⑤',
+        tabLabel: '⑤ 賀歲｜桃園釜山5日',
+        shortTitle: '賀歲｜桃園釜山5日',
+        title: '賀歲釜山四星滑車戲雪膠囊好好逛5日',
+        series: 'hesui',
+        seriesLabel: '🧧 賀歲尊爵系列',
+        origin: 'taoyuan',
+        originLabel: '桃園出發',
+        code: '27JK203ITG-ZP',
+        minPrice: 42888,
+        priceText: '$42,888 起',
+        hasConfirmed: false,
+        confirmedText: '2/3、2/6 春節黃金雙檔熱銷',
+        coverSlotName: '行程封面實景（建議放：海東龍宮寺 / 機張松葉蟹）',
+        coverTheme: 'temple',
+        airlineSummary: '台灣虎航（午去晚回不熬夜・雙程含餐）',
+        targetAudience: '北部過年家庭客、不想熬夜搭紅眼、熱愛松葉長腳蟹＋國際四星連泊客群',
+        salesPitch: '桃園午去晚回不熬夜直飛釜山！過年海東龍宮寺祈福、奢華大啖 ₩45,000「機張本家松葉長腳蟹」、LUGE 滑車玩足 3 次、全配滑雪含雪衣褲安全帽，後兩晚再升等凱悅嘉軒等國際四星！',
+        summaryPoints: [
+          '豪吃【機張本家】松葉長腳蟹(兩人乙隻)+蟹膏飯(₩45,000/人！)＋海東龍宮寺新春祈福',
+          'SKYLINE LUGE 斜坡滑車+景觀纜車(3次體驗券)＋EdenVally 全配滑雪(含雪衣褲安全帽)',
+          '天空膠囊列車＋灌籃高手平交道＋ARTE MUSEUM 光影展＋升等連住2晚國際四星酒店'
+        ],
+        hotelOneLine: '前2晚釜山市區飯店 ＋ 後2晚升等連住國際四星【HYATT PLACE 凱悅嘉軒 / Ramada Encore / ASTI】',
+        mealOneLine: '機張本家松葉長腳蟹(₩45,000/人)＋明倫進士烤肉(₩20,900)＋澎湃海鮮貝殼鍋(₩20,000)',
+        defaultDateIdx: 0,
+        departures: [
+          { date: '2027/02/03', day: '三', confirmed: false, avail: 13, total: 20, status: '報名', price: 42888, tag: '👑 春節前夕卡連假超值', lowest: true },
+          { date: '2027/02/06', day: '六', confirmed: false, avail: 14, total: 20, status: '報名', price: 49888, tag: '🧧 春節黃金週六檔' }
+        ],
+        flight: {
+          airline: '台灣虎航',
+          badges: ['午去晚回黃金時段免紅眼', '去回雙程含機上輕食/餐食', '首晚再贈每房乙份韓式炸雞'],
+          out: { no: 'IT606', dep: '桃園機場', depTime: '16:40', arr: '釜山金海機場', arrTime: '19:55', dur: '約 2 小時 15 分', note: '含機上輕食＋抵達飯店特別安排韓式炸雞(每房乙份)與飲料' },
+          in: { no: 'IT607', dep: '釜山金海機場', depTime: '20:45', arr: '桃園機場', arrTime: '22:10', dur: '約 2 小時 25 分', note: '含回程機上餐食，當晚 22:10 舒適返抵桃園' }
+        },
+        highlights: [
+          {
+            slot: 'h0', theme: 'temple',
+            tag: '新春祈福＋松葉蟹',
+            title: '機張本家松葉長腳蟹饗宴＋海東龍宮寺祈福',
+            desc: '過年必訪最美海濱古剎「海東龍宮寺」新春祈福，中午豪享機張本家松葉長腳蟹（兩人乙隻）＋蟹膏飯，餐標高達 ₩45,000/人！'
+          },
+          {
+            slot: 'h1', theme: 'snow',
+            tag: '3次滑車＋全配滑雪',
+            title: '釜山 SKYLINE LUGE 斜坡滑車3次券＋EdenVally全配滑雪',
+            desc: 'SKYLINE LUGE 斜坡滑車＋景觀纜車直接送 3 次體驗券玩到過癮；EdenVally 滑雪場含雪具、雪衣褲、安全帽全配＋季節採草莓！'
+          },
+          {
+            slot: 'h2', theme: 'ocean',
+            tag: 'IG打卡全收錄',
+            title: '海雲台天空膠囊＋灌籃高手平交道＋青沙浦天空步道',
+            desc: '搭乘四人乙台海雲台天空膠囊列車、朝聖韓版江之電灌籃高手平交道與青沙浦天空步道，再享洛東江 Cafe VIAGGIO 景觀特調飲乙杯！'
+          },
+          {
+            slot: 'h3', theme: 'art',
+            tag: '沉浸光影＋四星連泊',
+            title: 'ARTE MUSEUM BUSAN 沉浸光影＋國際四星連住2晚',
+            desc: '走進超震撼 ARTE MUSEUM BUSAN 沉浸式光影藝術展，後兩晚升等連泊凱悅嘉軒、華美達安可或 ASTI 等國際四星酒店！'
+          }
+        ],
+        hotels: [
+          { nights: 'Day 1 ～ Day 2（前 2 晚釜山市區連泊）', badge: '市區精選連泊2晚', upgrade: false, name: '釜山 ARBAN CITY / COTICE / IBIS / ALLZIP ARCHEVE4H / TOWER HILL 或同級', desc: '前 2 晚入住釜山市區交通便利酒店，抵達首晚貼心附贈韓式炸雞與飲料。' },
+          { nights: 'Day 3 ～ Day 4（後 2 晚升等國際四星連泊）', badge: '★ 升等連住2晚國際四星', upgrade: true, name: '四星 HYATT PLACE Yeonsan 或 Ramada Encore by Wyndham Busan Station 或 ASTI Hotel Busan 或同級', desc: '升等連住兩晚凱悅嘉軒、溫德姆華美達安可或 ASTI 國際四星酒店，過年住得更講究！' }
+        ],
+        mealsHighlight: [
+          { day: 'Day 2 午', name: '【機張本家】松葉長腳蟹(兩人乙隻)+蟹膏飯+特色海味小碟', price: '₩45,000/人', badge: '🦀 賀歲蟹王大餐' },
+          { day: 'Day 3 晚', name: '【明倫進士】韓式烤肉吃到飽', price: '₩20,900/人', badge: '烤肉無限享' },
+          { day: 'Day 4 晚', name: '【浮誇系】澎湃海鮮貝殼鍋(八爪魚+各式貝類+刀削麵)', price: '₩20,000/人', badge: '浮誇系海味' },
+          { day: 'Day 4 午', name: '【達人推薦】南浦參雞湯', price: '₩17,000/人', badge: '進補名店' },
+          { day: 'Day 5 午', name: '【水邊】豬肉湯飯+韓式水煮肉(四人一份)', price: '₩14,000/人', badge: '釜山道地' },
+          { day: 'Day 1/2/3', name: '首晚炸雞(₩24,000/房) / OUTLET代金(₩10,000) / 大叔部隊鍋(₩12,000) ＋ 雙程機上餐', price: '餐餐豐盛', badge: '透明高標' }
+        ],
+        itinerary: [
+          { day: 1, route: '桃園 ✈ 釜山金海 → 下榻飯店', spots: ['桃園午班機直飛釜山金海', '特別安排每房韓式炸雞+飲料'], b: 'X', l: '自理', d: '機上輕食＋特別安排韓式炸雞(每房乙份)+軟性飲料(每人乙瓶)(₩24,000/房)', hotel: '市區精選飯店' },
+          { day: 2, route: '海東龍宮寺新春祈福 → 機張傳統市場 → 釜山SKYLINE LUGE斜坡滑車+景觀纜車(特別安排3次體驗券) → 東釜山樂天PREMIUM OUTLET', spots: ['海東龍宮寺新春祈福', '機張傳統市場', 'SKYLINE LUGE斜坡滑車+景觀纜車(3次體驗券)', '東釜山樂天PREMIUM OUTLET'], b: '飯店內用', l: '【機張本家】松葉長腳蟹(兩人乙隻)+蟹膏飯+特色海味小碟(₩45,000/人)', d: '發放₩10,000於OUTLET美食探索', hotel: '市區精選飯店' },
+          { day: 3, route: 'EDENVALLY滑雪場(含雪具、雪鞋、雪橇、雪衣褲、安全帽) → 季節限定採草莓(每人帶走約250-300g) → 西面鬧區逛街', spots: ['EDENVALLY滑雪場(雪具/雪鞋/雪橇/雪衣褲/安全帽全包)', '季節限定採草莓(約250-300g)', '西面鬧區逛街'], b: '飯店內用', l: '【大叔口味】韓式部隊鍋(₩12,000/人)', d: '【明倫進士】韓式烤肉吃到飽(₩20,900/人)', hotel: '四星 HYATT PLACE Yeonsan 或 Ramada Encore 或 ASTI Hotel 或同級' },
+          { day: 4, route: '時尚彩妝店 → ARTE MUSEUM BUSAN沉浸式光影展 → 南浦洞國際市場(光復洞時尚街、BIFF廣場)', spots: ['時尚彩妝店', 'ARTE MUSEUM BUSAN沉浸式光影展', '南浦洞國際市場', '光復洞時尚街', 'BIFF廣場'], b: '飯店內用', l: '【達人推薦】南浦參雞湯(₩17,000/人)', d: '【浮誇系】澎湃海鮮貝殼鍋(八爪魚+各式貝類+刀削麵)(₩20,000/人)', hotel: '四星飯店(連住2晚)' },
+          { day: 5, route: '韓版江之電灌籃高手平交道 → 青沙浦天空步道 → 海雲台天空膠囊列車(四人乙台) → Cafe VIAGGIO洛東江景觀咖啡(贈特調飲乙杯) → 釜山 ✈ 桃園', spots: ['韓版江之電灌籃高手平交道', '青沙浦天空步道', '海雲台天空膠囊列車(四人乙台)', 'Cafe VIAGGIO洛東江景觀咖啡(贈特調飲乙杯)'], b: '飯店內用', l: '【水邊】豬肉湯飯+韓式水煮肉(四人一份)(₩14,000/人)', d: '機上餐食', hotel: '溫暖的家' }
+        ]
+      },
+
+      // -----------------------------------------------------------------------
+      // ⑥ 賀歲濟州萬豪水族館DIY好好逛5日
+      // -----------------------------------------------------------------------
+      {
+        id: 'tour6',
+        numBadge: '⑥',
+        tabLabel: '⑥ 賀歲｜濟州萬豪5日',
+        shortTitle: '賀歲｜濟州萬豪5日',
+        title: '賀歲濟州萬豪水族館DIY好好逛5日',
+        series: 'hesui',
+        seriesLabel: '🧧 賀歲尊爵系列',
+        origin: 'taoyuan',
+        originLabel: '桃園出發',
+        code: '27JK203ITP-ZP',
+        minPrice: 33888,
+        priceText: '$33,888 起',
+        hasConfirmed: true,
+        confirmedText: '🔥 2/5(五)、2/6(六) 雙團已成行！',
+        coverSlotName: '行程封面實景（建議放：萬丈窟 / 藍鼎廳龍蝦百匯）',
+        coverTheme: 'flower',
+        airlineSummary: '台灣虎航（早班機不飛紅眼・雙程含餐）',
+        targetAudience: '三代同堂孝親家族、不想搭紅眼班機、追求最高餐標百匯＋自然遺產客群',
+        salesPitch: '2/5(五)、2/6(六) 雙雙「已成行」保證出團，2/8 更祭出 $33,888 賀歲驚喜價！早班機直飛不熬夜，搶先逛 2026 全新整修開幕萬丈窟，再享全系列封頂餐標 ₩149,000 藍鼎豪華龍蝦牛排百匯＋住神話世界萬豪！',
+        summaryPoints: [
+          '全系列最高餐標 ₩149,000/人【藍鼎豪華海鮮百匯(龍蝦/牛排/鮑魚無限享+酒水暢飲)】＋住神話萬豪',
+          '搶先探訪 2026 全新整修開幕「萬丈窟」＋城山日出峰＋Aqua Planet 水族館＋正房瀑布',
+          '山茶花之丘冬季賞花＋Kitty 島＋韓系燙布貼鑰匙圈 DIY＋橘子園(贈3顆橘子)＆濟州堂下午茶'
+        ],
+        hotelOneLine: '前3晚連住市區商務免搬行李 ＋ 第4晚壓軸升等五星【濟州神話世界萬豪】',
+        mealOneLine: '封頂餐標 ₩149,000 藍鼎豪華龍蝦牛排百匯＋遊天下海鮮餐(₩25,000)＋明倫進士啤酒暢飲(₩21,900)',
+        defaultDateIdx: 1,
+        departures: [
+          { date: '2027/02/03', day: '三', confirmed: false, avail: 19, total: 20, status: '報名', price: 40888, tag: '春節前夕檔' },
+          { date: '2027/02/05', day: '五', confirmed: true, avail: 9, total: 20, status: '報名', price: 46888, tag: '🧧 春節黃金檔・已成行！' },
+          { date: '2027/02/06', day: '六', confirmed: true, avail: 8, total: 20, status: '報名', price: 46888, tag: '🧧 春節黃金檔・已成行！' },
+          { date: '2027/02/08', day: '一', confirmed: false, avail: 19, total: 20, status: '報名', price: 33888, tag: '👑 賀歲系列最低驚喜價', lowest: true }
+        ],
+        flight: {
+          airline: '台灣虎航',
+          badges: ['早班機直飛不飛紅眼', '去回雙程含機上輕食/簡餐', '飛行不到 2 小時孝親最舒適'],
+          out: { no: 'IT654', dep: '桃園機場', depTime: '06:40', arr: '濟州機場', arrTime: '09:35', dur: '約 1 小時 55 分', note: '含機上輕食，上午輕鬆抵達展開濟州海景美食之旅' },
+          in: { no: 'IT655', dep: '濟州機場', depTime: '10:30', arr: '桃園機場', arrTime: '11:35', dur: '約 2 小時 5 分', note: '含機上簡餐，中午 11:35 輕鬆返抵桃園' }
+        },
+        highlights: [
+          {
+            slot: 'h0', theme: 'aqua',
+            tag: '2026重開搶先看',
+            title: '2026全新整修萬丈窟＋城山日出峰＋Aqua Planet水族館',
+            desc: '搶先探訪 2026 全新整修開幕世界自然遺產熔岩奇景「萬丈窟」，再遊城山日出峰與韓國最大海洋世界 Aqua Planet！'
+          },
+          {
+            slot: 'h1', theme: 'luxury',
+            tag: '全系列封頂餐標',
+            title: '濟州神話世界萬豪＋₩149,000藍鼎豪華海鮮百匯',
+            desc: '第 4 晚壓軸入住五星神話世界萬豪，豪享全系列最高餐標 ₩149,000/人藍鼎自助餐——龍蝦、牛排、鮑魚無限享＋酒水暢飲！'
+          },
+          {
+            slot: 'h2', theme: 'flower',
+            tag: '冬日賞花＋萌系地標',
+            title: '山茶花之丘賞花＋Hello Kitty Island＋正房瀑布',
+            desc: '漫步濟州後花園「山茶花之丘」季節浪漫賞花，朝聖夢幻粉紅凱蒂貓島嶼與亞洲罕見直接入海的壯麗「正房瀑布」！'
+          },
+          {
+            slot: 'h3', theme: 'citrus',
+            tag: '文青手作＋柑橘下午茶',
+            title: '韓系燙布貼DIY＋橘子園採果＋星辰岳濟州堂咖啡廳',
+            desc: '親手搭配專屬韓系燙布貼鑰匙圈，走進濟州橘子園（每人贈送 3 顆橘子），再享星辰岳濟州堂西歸浦柑橘汁乙杯＋造型麵包乙個！'
+          }
+        ],
+        hotels: [
+          { nights: 'Day 1 ～ Day 3（前 3 晚連泊免搬行李）', badge: '市區商務連泊3晚', upgrade: false, name: '市區商務 Central City Hotel 或 With Hotel Jeju 或 AISA HOTEL 或 Haema Hotel 或同級', desc: '前 3 晚連住濟州市區商務飯店省去天天整理行李的麻煩，輕鬆逛東門傳統市場與蓮洞商圈。' },
+          { nights: 'Day 4（壓軸升等 1 晚國際五星）', badge: '★ 升等五星神話世界萬豪', upgrade: true, name: '濟州神話世界萬豪 或同級', desc: '壓軸一晚奢華升等濟州神話世界萬豪酒店，搭配 ₩149,000 藍鼎豪華龍蝦牛排百匯完美收尾！' }
+        ],
+        mealsHighlight: [
+          { day: 'Day 4 晚', name: 'KCIA票選第一藍鼎自助餐(龍蝦、牛排、鮑魚豪華無限享+酒水暢飲)', price: '₩149,000/人', badge: '👑 全系列最高餐標' },
+          { day: 'Day 1 午', name: '遊天下海鮮餐(大扇貝+章魚+魷魚+鮑魚+各式扇貝+豬肉+魚板+起士)+刀削麵', price: '₩25,000/人', badge: '超浮誇海鮮盤' },
+          { day: 'Day 3 晚', name: '明倫進士炭火烤肉吃到飽+啤酒暢飲', price: '₩21,900/人', badge: '烤肉+啤酒暢飲' },
+          { day: 'Day 2 午', name: '【濟州限定】超彭派章魚鮑魚海鮮鍋', price: '₩20,000/人', badge: '鮮美海味' },
+          { day: 'Day 3 午', name: '秘製老辛奇KIMCHI燉青花魚+鮮美鮑魚釜飯', price: '₩18,000/人', badge: '雙主菜名餐' },
+          { day: 'Day 1/2/4', name: '東門市場代金(₩10,000) / 半半麵+糖醋肉(₩14,000) / 濟州豬肉湯麵(₩14,000) ＋ 雙程機上餐', price: '餐餐講究', badge: '高標透明' }
+        ],
+        itinerary: [
+          { day: 1, route: '桃園 ✈ 濟州 → 龍頭岩+龍淵橋 → 彩虹海岸 → 東門傳統市場', spots: ['龍頭岩+龍淵橋', '彩虹海岸', '東門傳統市場'], b: '機上輕食', l: '遊天下海鮮餐(大扇貝+章魚+魷魚+鮑魚+各式扇貝+豬肉+魚板+起士)+刀削麵(₩25,000/人)', d: '發代金₩10,000/人體驗市場美食', hotel: '市區商務飯店(連住3晚)' },
+          { day: 2, route: '2026全新整修開幕萬丈窟 → 東邊松堂童話村主題樂園+超可愛吉卜力商店 → 城山日出峰 → 濟州Aqua Planet海洋世界', spots: ['2026全新整修開幕萬丈窟', '東邊松堂童話村+吉卜力商店', '城山日出峰', '濟州Aqua Planet海洋世界'], b: '飯店內用', l: '【濟州限定】超彭派章魚鮑魚海鮮鍋(₩20,000/人)', d: '半半麵(炒馬麵+炸醬麵)+糖醋肉(四人一份)(₩14,000/人)', hotel: '市區商務飯店(連住3晚)' },
+          { day: 3, route: '山茶花之丘(季節賞花) → 夢幻Kitty Land → 正房瀑布 → 蓮洞商圈', spots: ['山茶花之丘(季節賞花)', '夢幻Kitty Land', '正房瀑布', '蓮洞商圈'], b: '飯店內用', l: '秘製老辛奇KIMCHI燉青花魚+鮮美鮑魚釜飯(₩18,000/人)', d: '明倫進士炭火烤肉吃到飽+啤酒暢飲(₩21,900/人)', hotel: '市區商務飯店(連住3晚)' },
+          { day: 4, route: '時尚彩妝店 → 韓系燙布貼DIY手作鑰匙圈 → 濟州橘子園(每人贈送3顆橘子) → 森林系咖啡廳濟州堂(每人西歸浦柑橘汁乙杯+造型麵包乙個)', spots: ['時尚彩妝店', '韓系燙布貼DIY手作鑰匙圈', '濟州橘子園(每人贈3顆橘子)', '濟州堂咖啡廳(贈柑橘汁+造型麵包)'], b: '飯店內用', l: '【韓國美食100選】濟州豬肉湯麵+一口水餃(四人一份)(₩14,000/人)', d: 'KCIA票選第一藍鼎自助餐(龍蝦、牛排、鮑魚豪華無限享+酒水暢飲)(₩149,000/人)', hotel: '濟州神話世界萬豪 或同級' },
+          { day: 5, route: '濟州國際機場 ✈ 桃園國際機場', spots: ['悠閒早餐後搭早班機返台'], b: '飯店內用早餐', l: '機上簡餐', d: '溫暖的家', hotel: '溫暖的家' }
+        ]
+      }
+    ];
+
+    // =========================================================================
+    // 2. 狀態管理與內嵌／暫存實景照初始化
+    // =========================================================================
+    const TOTAL_SLOTS = TOURS.length * 5; // 6 團 x 5 插槽 (cover + h0~h3) = 30 插槽
+
+    const state = {
+      activeTab: 'home',              // 'home' 或 'tour1'..'tour6'
+      homeFilter: 'all',              // 'all' | 'yingchun' | 'hesui' | 'taoyuan' | 'kaohsiung' | 'confirmed'
+      clientOnlyLocked: false,        // 若為客戶純淨匯出檔則鎖死 true
+      isClientMode: false,            // 👁️ 客戶展示模式開關
+      photos: {},                     // key: `${tourId}_${slot}` -> compressed JPEG DataURL
+      selectedDateIdx: {},            // 記錄各團目前點選的出發日期索引（連動第7區 LINE 報價）
+      pendingUploadKey: null,         // 點選換圖時暫存目標插槽 key
+      activeModal: null,              // null | 'manager' | 'export' | 'confirmClearAll'
+      managerFilterTour: 'all'        // 批次照片管理器的分團篩選
+    };
+
+    // 初始化各團預設日期索引
+    TOURS.forEach(t => {
+      state.selectedDateIdx[t.id] = t.defaultDateIdx || 0;
+    });
+
+    /**
+     * 載入實景照片：優先載入 window.EMBEDDED_PHOTOS，非鎖定純淨版再合併 localStorage
+     */
+    function loadPhotosAndConfig() {
+      const exportCfg = (window.EXPORT_CONFIG && typeof window.EXPORT_CONFIG === 'object')
+        ? window.EXPORT_CONFIG
+        : { clientOnly: false };
+
+      state.clientOnlyLocked = Boolean(exportCfg.clientOnly);
+      state.isClientMode = state.clientOnlyLocked;
+
+      const embedded = (window.EMBEDDED_PHOTOS && typeof window.EMBEDDED_PHOTOS === 'object')
+        ? window.EMBEDDED_PHOTOS
+        : {};
+
+      const merged = Object.assign({}, embedded);
+
+      // 若不是客戶純淨鎖定版，合併本機瀏覽器 localStorage 中的最新修改
+      if (!state.clientOnlyLocked) {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed && typeof parsed === 'object') {
+              Object.assign(merged, parsed);
+            }
+          }
+        } catch (err) {
+          console.warn('讀取 localStorage 失敗:', err);
+        }
+      }
+      state.photos = merged;
+    }
+
+    /**
+     * 將目前實景照片安全寫入 localStorage（具備防滿載 try/catch 提醒）
+     */
+    function persistPhotosToStorage() {
+      if (state.clientOnlyLocked) return true;
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state.photos));
+        return true;
+      } catch (err) {
+        console.error('localStorage 容量不足:', err);
+        showToast('⚠️ 瀏覽器暫存空間已接近上限！照片已保留在目前畫面，建議立刻點「💾 匯出成品網頁」永久保存！', '!');
+        return false;
+      }
+    }
+
+    /**
+     * 取得指定插槽的實景照（封面若未單獨上傳，自動借用該團第一張已上傳的景點實景照）
+     */
+    function getSlotPhoto(tourId, slot, allowCoverFallback = false) {
+      const directKey = `${tourId}_${slot}`;
+      if (state.photos[directKey]) {
+        return { src: state.photos[directKey], isBorrowed: false, key: directKey };
+      }
+      if (allowCoverFallback && slot === 'cover') {
+        for (const hSlot of ['h0', 'h1', 'h2', 'h3']) {
+          const hKey = `${tourId}_${hSlot}`;
+          if (state.photos[hKey]) {
+            return { src: state.photos[hKey], isBorrowed: true, key: directKey };
+          }
+        }
+      }
+      return { src: null, isBorrowed: false, key: directKey };
+    }
+
+    /**
+     * 計算目前實際已上傳的插槽總數（最多 30）
+     */
+    function getUploadedCount() {
+      let count = 0;
+      TOURS.forEach(t => {
+        ['cover', 'h0', 'h1', 'h2', 'h3'].forEach(slot => {
+          if (state.photos[`${t.id}_${slot}`]) count++;
+        });
+      });
+      return count;
+    }
+
+    // =========================================================================
+    // 3. 圖片自動壓縮（Canvas 最大寬 1000px、JPEG quality 0.80）與拖曳上傳
+    // =========================================================================
+    function compressImageFile(file) {
+      return new Promise((resolve, reject) => {
+        if (!file || !file.type || !file.type.startsWith('image/')) {
+          reject(new Error('請選擇圖片檔案（JPG / PNG / WebP）'));
+          return;
+        }
+        const reader = new FileReader();
+        reader.onerror = () => reject(new Error('讀取圖片檔案失敗'));
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onerror = () => reject(new Error('無法解析此圖片格式'));
+          img.onload = () => {
+            try {
+              const MAX_WIDTH = 1000;
+              let width = img.naturalWidth || img.width;
+              let height = img.naturalHeight || img.height;
+              if (width > MAX_WIDTH) {
+                height = Math.round(height * (MAX_WIDTH / width));
+                width = MAX_WIDTH;
+              }
+              const canvas = document.createElement('canvas');
+              canvas.width = width;
+              canvas.height = height;
+              const ctx = canvas.getContext('2d');
+              // 填入純白底色避免透明 PNG 轉 JPEG 時變黑底
+              ctx.fillStyle = '#FFFFFF';
+              ctx.fillRect(0, 0, width, height);
+              ctx.drawImage(img, 0, 0, width, height);
+              const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.80);
+              resolve(compressedDataUrl);
+            } catch (err) {
+              reject(new Error('圖片壓縮失敗：' + err.message));
+            }
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    /**
+     * 處理單一插槽的圖片上傳
+     */
+    async function uploadPhotoToSlot(slotKey, file) {
+      if (state.isClientMode || state.clientOnlyLocked) return;
+      try {
+        const dataUrl = await compressImageFile(file);
+        const approxKB = Math.round((dataUrl.length * 3) / 4 / 1024);
+        state.photos[slotKey] = dataUrl;
+        persistPhotosToStorage();
+        renderAll();
+        showToast(`實景照上傳成功！（已自動壓縮至約 ${approxKB} KB 並暫存）`, '📷');
+      } catch (err) {
+        showToast(err.message || '圖片上傳失敗，請重試', '!');
+      }
+    }
+
+    /**
+     * 觸發隱藏檔案選擇器
+     */
+    function triggerSlotUpload(slotKey, event) {
+      if (event) event.stopPropagation();
+      if (state.isClientMode || state.clientOnlyLocked) return;
+      state.pendingUploadKey = slotKey;
+      const input = document.getElementById('global-photo-input');
+      input.value = '';
+      input.click();
+    }
+
+    /**
+     * 清除單張已上傳照片
+     */
+    function clearSlotPhoto(slotKey, event) {
+      if (event) event.stopPropagation();
+      if (state.isClientMode || state.clientOnlyLocked) return;
+      if (state.photos[slotKey]) {
+        delete state.photos[slotKey];
+        persistPhotosToStorage();
+        renderAll();
+        showToast('已清除並還原此景點插槽佔位圖', '↺');
+      }
+    }
+
+    /**
+     * 清空全部已上傳照片
+     */
+    function clearAllPhotosConfirmed() {
+      state.photos = {};
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch (e) {}
+      state.activeModal = 'manager';
+      renderAll();
+      showToast('已清空所有自訂實景照', '↺');
+    }
+
+    // 綁定共用 file input 變更事件
+    document.getElementById('global-photo-input').addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (file && state.pendingUploadKey) {
+        uploadPhotoToSlot(state.pendingUploadKey, file);
+      }
+      state.pendingUploadKey = null;
+    });
+
+    // 拖曳上傳共用事件處理函式
+    function onSlotDragOver(event) {
+      if (state.isClientMode || state.clientOnlyLocked) return;
+      event.preventDefault();
+      event.stopPropagation();
+      event.currentTarget.classList.add('drop-active');
+    }
+
+    function onSlotDragLeave(event) {
+      event.preventDefault();
+      event.stopPropagation();
+      if (!event.currentTarget.contains(event.relatedTarget)) {
+        event.currentTarget.classList.remove('drop-active');
+      }
+    }
+
+    function onSlotDrop(event, slotKey) {
+      if (state.isClientMode || state.clientOnlyLocked) return;
+      event.preventDefault();
+      event.stopPropagation();
+      event.currentTarget.classList.remove('drop-active');
+      const file = event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files[0];
+      if (file) {
+        uploadPhotoToSlot(slotKey, file);
+      }
+    }
+
+    // =========================================================================
+    // 4. 一鍵打包匯出獨立離線 HTML 成品檔（業務完整版 / 客戶純淨版）
+    // =========================================================================
+    function exportStandaloneHtml(clientOnly) {
+      try {
+        const clone = document.documentElement.cloneNode(true);
+
+        // 清空 clone 中的動態渲染區，讓匯出後的 HTML 檔案打開時乾淨重新渲染
+        const cloneApp = clone.querySelector('#app');
+        if (cloneApp) cloneApp.innerHTML = '';
+        const cloneModal = clone.querySelector('#modal-root');
+        if (cloneModal) cloneModal.innerHTML = '';
+
+        // 寫入所有已壓縮的實景照 Base64 與匯出模式設定到專屬 script 標籤
+        const configScript = clone.querySelector('#embedded-photos-config');
+        if (configScript) {
+          const safePhotosJson = JSON.stringify(state.photos).replace(/</g, '\\u003c');
+          const safeConfigJson = JSON.stringify({ clientOnly: Boolean(clientOnly) });
+          configScript.textContent = `window.EMBEDDED_PHOTOS = ${safePhotosJson}; window.EXPORT_CONFIG = ${safeConfigJson};`;
+        }
+
+        const htmlString = '<!DOCTYPE html>\n' + clone.outerHTML;
+        const blob = new Blob([htmlString], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+
+        const filename = clientOnly
+          ? '春節韓國精選6行程_客戶純淨版.html'
+          : '春節韓國精選6行程_業務實景版.html';
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1500);
+
+        const uploadedCount = getUploadedCount();
+        const sizeMB = (blob.size / (1024 * 1024)).toFixed(2);
+        closeModal();
+        showToast(`已成功匯出「${filename}」（內含 ${uploadedCount} 張實景照，約 ${sizeMB} MB）`, '💾');
+      } catch (err) {
+        console.error('匯出失敗:', err);
+        showToast('匯出成品網頁失敗：' + err.message, '!');
+      }
+    }
+
+    // =========================================================================
+    // 5. 高質感春節旅遊風插畫佔位圖（未上傳實景照前呈現，零破圖）
+    // =========================================================================
+    const THEME_STYLES = {
+      snow:   { grad: 'from-[#2A3F5F] via-[#516B8A] to-[#8C2D2D]', accent: '#F2DDA3', icon: '❄️', sub: '冬季戲雪實景插槽' },
+      berry:  { grad: 'from-[#7A1822] via-[#9B1C1C] to-[#C87D3C]', accent: '#FCE4E4', icon: '🍓', sub: '滑雪採果實景插槽' },
+      castle: { grad: 'from-[#491220] via-[#8B1A2B] to-[#C89B3C]', accent: '#FAF0D3', icon: '🏰', sub: '主題樂園實景插槽' },
+      city:   { grad: 'from-[#3B1618] via-[#7A2020] to-[#B07E2B]', accent: '#F2DDA3', icon: '🛍️', sub: '潮流商圈實景插槽' },
+      ocean:  { grad: 'from-[#16415E] via-[#276887] to-[#9B2C2C]', accent: '#FAF0D3', icon: '🚃', sub: '釜山海景實景插槽' },
+      spa:    { grad: 'from-[#20455A] via-[#6B3B45] to-[#C89B3C]', accent: '#FDF9EE', icon: '♨️', sub: '海景汗蒸幕實景插槽' },
+      night:  { grad: 'from-[#1C1D3A] via-[#561B32] to-[#B8862D]', accent: '#F2DDA3', icon: '🌃', sub: '百萬夜景實景插槽' },
+      island: { grad: 'from-[#174E56] via-[#2F726D] to-[#A66C24]', accent: '#FAF0D3', icon: '🏝️', sub: '濟州自然遺產插槽' },
+      luxury: { grad: 'from-[#490C0C] via-[#7F1616] to-[#C89B3C]', accent: '#FAF0D3', icon: '🦞', sub: '五星萬豪百匯插槽' },
+      tea:    { grad: 'from-[#1F4A34] via-[#3A6B4C] to-[#B88B35]', accent: '#FAF0D3', icon: '🍵', sub: '茶園賽車實景插槽' },
+      aqua:   { grad: 'from-[#133859] via-[#1E5C7E] to-[#8E3535]', accent: '#E6F4F9', icon: '🐠', sub: '水族館洞穴實景插槽' },
+      lego:   { grad: 'from-[#8B1A1A] via-[#B8321F] to-[#D69E2E]', accent: '#FAF0D3', icon: '🧱', sub: '樂高樂園飯店插槽' },
+      palace: { grad: 'from-[#5A1111] via-[#8E2424] to-[#C89B3C]', accent: '#FAF0D3', icon: '🏯', sub: '景福宮古宮實景插槽' },
+      temple: { grad: 'from-[#2B3A55] via-[#7A2323] to-[#C89B3C]', accent: '#FAF0D3', icon: '⛩️', sub: '龍宮寺蟹宴實景插槽' },
+      art:    { grad: 'from-[#2F1638] via-[#7B1E3C] to-[#C89B3C]', accent: '#FAF0D3', icon: '✨', sub: '光影美術館實景插槽' },
+      flower: { grad: 'from-[#7E1B2B] via-[#AD2E46] to-[#D1963B]', accent: '#FFF1F2', icon: '🌺', sub: '山茶花賞花實景插槽' },
+      citrus: { grad: 'from-[#8C2B14] via-[#C45C1A] to-[#D9A136]', accent: '#FEF3C7', icon: '🍊', sub: '橘子園手作實景插槽' }
+    };
+
+    /**
+     * 渲染通用實景圖片區塊（支援：已上傳全幅高清呈現 / 未上傳春節雜誌佔位圖 / 點擊與拖曳換圖 / 清除還原）
+     */
+    function renderPhotoSlotBox({ tourId, slot, label, theme, aspectClass = 'aspect-[16/10]', allowCoverFallback = false, badgeHtml = '', roundedClass = 'rounded-2xl' }) {
+      const { src, isBorrowed, key } = getSlotPhoto(tourId, slot, allowCoverFallback);
+      const tStyle = THEME_STYLES[theme] || THEME_STYLES.castle;
+      const editable = !state.isClientMode && !state.clientOnlyLocked;
+
+      const dragAttrs = editable
+        ? `onclick="triggerSlotUpload('${key}', event)" ondragover="onSlotDragOver(event)" ondragleave="onSlotDragLeave(event)" ondrop="onSlotDrop(event, '${key}')"`
+        : '';
+
+      return `
+        <div
+          class="relative w-full ${aspectClass} ${roundedClass} overflow-hidden select-none group transition-all duration-200 ${editable ? 'cursor-pointer' : ''} border border-gold-300/60 bg-crimson-950"
+          ${dragAttrs}
+        >
+          ${src ? `
+            <!-- 已上傳之真實風景照（全幅 object-cover 清晰呈現） -->
+            <img src="${src}" alt="${escapeHtml(label)}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-black/15 pointer-events-none"></div>
+            ${isBorrowed && editable ? `
+              <div class="absolute bottom-2.5 left-2.5 z-10 px-2.5 py-1 rounded-full bg-black/65 backdrop-blur-sm text-gold-200 text-[11px] font-bold border border-gold-400/40">
+                ✨ 自動套用本團第1張實景照（點擊可單獨換封面）
+              </div>
+            ` : ''}
+          ` : `
+            <!-- 未上傳實景照：高質感春節旅遊雜誌風插畫佔位圖 -->
+            <div class="w-full h-full bg-gradient-to-br ${tStyle.grad} relative flex flex-col items-center justify-center p-4 text-center">
+              <!-- 背景裝飾祥雲與窗花 SVG -->
+              <svg class="absolute inset-0 w-full h-full opacity-15 pointer-events-none" viewBox="0 0 400 250" preserveAspectRatio="xMidYMid slice" fill="none">
+                <circle cx="340" cy="40" r="68" stroke="#F2DDA3" stroke-width="1.5" stroke-dasharray="5 5"/>
+                <circle cx="55" cy="215" r="80" stroke="#F2DDA3" stroke-width="1.2"/>
+                <path d="M0 190 Q 90 155 180 185 T 400 170 L 400 250 L 0 250 Z" fill="#F2DDA3" fill-opacity="0.22"/>
+                <path d="M20 35 h36 M38 17 v36" stroke="#F2DDA3" stroke-width="1.2" opacity="0.6"/>
+              </svg>
+              <div class="relative z-10 flex flex-col items-center max-w-[92%]">
+                <div class="w-12 h-12 rounded-2xl bg-black/25 border border-gold-300/60 flex items-center justify-center text-2xl shadow-lg mb-2 backdrop-blur-sm">
+                  ${tStyle.icon}
+                </div>
+                <p class="font-serif font-bold text-white text-sm sm:text-base leading-snug drop-shadow line-clamp-2">
+                  ${escapeHtml(label)}
+                </p>
+                ${editable ? `
+                  <span class="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 hover:bg-gold-500 hover:text-crimson-950 text-gold-100 border border-gold-300/60 text-[11px] font-bold backdrop-blur-sm transition-colors">
+                    📷 點擊或拖曳放入此景點實景照
+                  </span>
+                ` : `
+                  <span class="mt-1.5 text-[11px] font-medium text-gold-200/85">${tStyle.sub}</span>
+                `}
+              </div>
+            </div>
+          `}
+
+          <!-- 左上角客製徽章（如系列標籤／景點標籤） -->
+          ${badgeHtml}
+
+          <!-- 拖曳檔案進入時的金色提示遮罩 -->
+          ${editable ? `
+            <div class="drop-hint-overlay opacity-0 absolute inset-0 z-30 bg-crimson-950/80 backdrop-blur-sm flex flex-col items-center justify-center text-center p-4 transition-opacity">
+              <div class="w-12 h-12 rounded-2xl bg-gold-500 text-crimson-950 flex items-center justify-center text-2xl font-black mb-2 shadow-lg">⬇️</div>
+              <p class="text-gold-200 font-black text-sm sm:text-base">放開以上傳此景點實景照</p>
+              <p class="text-gold-100/80 text-xs mt-1">自動壓縮為高畫質輕量 JPEG 並暫存</p>
+            </div>
+
+            <!-- 業務編輯模式專屬：右上角換圖 / 清除操作鈕 -->
+            <div class="absolute top-2.5 right-2.5 z-20 flex items-center gap-1.5">
+              <button
+                type="button"
+                onclick="triggerSlotUpload('${key}', event)"
+                class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-crimson-950/85 hover:bg-gold-500 text-gold-100 hover:text-crimson-950 border border-gold-400/70 text-[11px] font-extrabold shadow-lg backdrop-blur-sm transition-all"
+                title="點擊更換此實景照"
+              >
+                📷 ${src && !isBorrowed ? '更換實景照' : '上傳實景照'}
+              </button>
+              ${src && !isBorrowed ? `
+                <button
+                  type="button"
+                  onclick="clearSlotPhoto('${key}', event)"
+                  class="inline-flex items-center justify-center px-2 py-1.5 rounded-xl bg-black/75 hover:bg-crimson-600 text-white border border-white/25 text-[11px] font-bold shadow-lg backdrop-blur-sm transition-all"
+                  title="清除還原佔位圖"
+                >
+                  ↺ 清除
+                </button>
+              ` : ''}
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+
+    // =========================================================================
+    // 6. 輔助工具函式（HTML 跳脫、金額格式、12/18 倒數、複製文案、Toast）
+    // =========================================================================
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function formatPrice(num) {
+      return '$' + Number(num).toLocaleString('zh-TW');
+    }
+
+    /**
+     * 計算距離 12/18 預購優惠截止剩餘天數
+     */
+    function getPromoCountdownText() {
+      const now = new Date();
+      let targetYear = now.getFullYear();
+      let target = new Date(targetYear, 11, 18, 23, 59, 59); // 12 月為 11
+      if (now > target) {
+        target = new Date(targetYear + 1, 11, 18, 23, 59, 59);
+      }
+      const diffDays = Math.max(0, Math.ceil((target - now) / (1000 * 60 * 60 * 24)));
+      return `⏳ 距 12/18 優惠截止倒數 ${diffDays} 天`;
+    }
+
+    /**
+     * 安全複製文字至剪貼簿（優先使用 execCommand 相容 iFrame 環境）
+     */
+    function copyTextToClipboard(text, successMsg) {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.top = '-9999px';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        ta.setSelectionRange(0, ta.value.length);
+        const ok = document.execCommand('copy');
+        document.body.removeChild(ta);
+        if (ok) {
+          showToast(successMsg || '已複製至剪貼簿，可直接貼上 LINE 傳給客戶！', '📋');
+          return;
+        }
+      } catch (e) {}
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text)
+          .then(() => showToast(successMsg || '已複製至剪貼簿！', '📋'))
+          .catch(() => showToast('複製失敗，請手動選取文案複製', '!'));
+      } else {
+        showToast('請手動選取文字框內容複製', '!');
+      }
+    }
+
+    let toastTimer = null;
+    function showToast(msg, icon = '✓') {
+      const toast = document.getElementById('toast');
+      const msgEl = document.getElementById('toast-msg');
+      const iconEl = document.getElementById('toast-icon');
+      if (!toast || !msgEl) return;
+      msgEl.textContent = msg;
+      iconEl.textContent = icon;
+      toast.classList.remove('translate-x-full', 'opacity-0');
+      toast.classList.add('translate-x-0', 'opacity-100');
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.add('translate-x-full', 'opacity-0');
+        toast.classList.remove('translate-x-0', 'opacity-100');
+      }, 3400);
+    }
+
+    /**
+     * 產生指定行程＋所選出發日期的 LINE 專屬報價推銷文案
+     */
+    function generateLineQuote(tour) {
+      const idx = state.selectedDateIdx[tour.id] || 0;
+      const dep = tour.departures[idx] || tour.departures[0];
+      const confirmNote = dep.confirmed ? '（🔥 已成行保證出團！）' : '';
+      return [
+        `🧧【2027 春節精選推薦】${tour.title}`,
+        `━━━━━━━━━━━━━━━━`,
+        `📅 推薦出發：${dep.date} (${dep.day}) ${confirmNote}`,
+        `💰 專案團費：${formatPrice(dep.price)}／人`,
+        `🎁 限時優惠：「迎春、賀歲」行程預購優惠延長到 12/18 前適用！`,
+        ``,
+        `✈️ 參考航班：${tour.flight.airline}（${tour.originLabel}）`,
+        `・去程 ${tour.flight.out.no}：${tour.flight.out.dep} ${tour.flight.out.depTime} → ${tour.flight.out.arr} ${tour.flight.out.arrTime}`,
+        `・回程 ${tour.flight.in.no}：${tour.flight.in.dep} ${tour.flight.in.depTime} → ${tour.flight.in.arr} ${tour.flight.in.arrTime}`,
+        ``,
+        `✨ 必玩核心賣點：`,
+        ...tour.summaryPoints.map(p => `✔ ${p}`),
+        ``,
+        `🏨 飯店亮點：${tour.hotelOneLine}`,
+        `🍽️ 餐食亮點：${tour.mealOneLine}`,
+        ``,
+        `📩 過年與寒假旺季機位跑很快，12/18 前預購享早鳥優惠，歡迎隨時回覆我幫您先保留席次喔！`
+      ].join('\n');
+    }
+
+    function copyTourQuote(tourId) {
+      const tour = TOURS.find(t => t.id === tourId);
+      if (!tour) return;
+      copyTextToClipboard(generateLineQuote(tour), `已複製【${tour.shortTitle}】LINE 專屬推銷報價文案！`);
+    }
+
+    function copyGlobalPromoPitch() {
+      const text = [
+        '🧧【2027 春節韓國迎春・賀歲 6 大精選 5 日遊】',
+        '✨ 好消息！「迎春、賀歲」系列行程預購優惠延長到 12/18 前適用！',
+        '・🌸 迎春超值系列（$24,888 起）：首爾清州戲雪樂天 / 高雄直飛釜山膠囊 / 經典濟州萬豪百匯',
+        '・🧧 賀歲尊爵系列（$33,888 起）：首爾樂高雙樂園(2/6成行) / 桃園釜山四星松葉蟹 / 濟州萬豪₩149,000藍鼎百匯(2/5、2/6成行)',
+        '📩 12/18 前預購卡位享專屬禮遇，請問您想優先看哪一個城市或出發日期呢？'
+      ].join('\n');
+      copyTextToClipboard(text, '已複製 12/18 限時預購總覽推銷話術！');
+    }
+
+    // =========================================================================
+    // 7. 互動操作（分頁切換、篩選、日期連動、客戶模式、彈窗開關）
+    // =========================================================================
+    function switchTab(tabId) {
+      state.activeTab = tabId;
+      renderAll();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function setHomeFilter(filter) {
+      state.homeFilter = filter;
+      renderAll();
+    }
+
+    function selectTourDate(tourId, idx) {
+      state.selectedDateIdx[tourId] = idx;
+      renderAll();
+      const tour = TOURS.find(t => t.id === tourId);
+      const dep = tour.departures[idx];
+      showToast(`已切換報價日期：${dep.date} (${dep.day})・${formatPrice(dep.price)}（下方 LINE 文案已即時同步）`, '📅');
+    }
+
+    function toggleClientMode() {
+      if (state.clientOnlyLocked) return;
+      state.isClientMode = !state.isClientMode;
+      renderAll();
+      showToast(
+        state.isClientMode
+          ? '已切換為「👁️ 客戶展示模式」：已隱藏換圖按鈕、產品代碼、剩餘席次數字與業務話術'
+          : '已切回「💼 業務編輯模式」：可點擊或拖曳上傳實景照與檢視席次話術',
+        state.isClientMode ? '👁️' : '💼'
+      );
+    }
+
+    function openModal(name) {
+      if (state.clientOnlyLocked) return;
+      state.activeModal = name;
+      renderModals();
+    }
+
+    function closeModal() {
+      state.activeModal = null;
+      renderModals();
+    }
+
+    function setManagerFilter(tourId) {
+      state.managerFilterTour = tourId;
+      renderModals();
+    }
+
+    function scrollToSection(sectionId) {
+      const el = document.getElementById(sectionId);
+      if (el) {
+        const y = el.getBoundingClientRect().top + window.scrollY - 150;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+      }
+    }
+
+    // =========================================================================
+    // 8. 主介面渲染引擎（頂部橫幅 ＋ 吸頂操作列 ＋ 7分頁內容 ＋ 底部列）
+    // =========================================================================
+    function renderHeader() {
+      const uploadedCount = getUploadedCount();
+      const showTools = !state.isClientMode && !state.clientOnlyLocked;
+
+      const tabs = [
+        { id: 'home', label: '🏠 首頁：六大行程總覽' },
+        ...TOURS.map(t => ({ id: t.id, label: t.tabLabel, hasConfirmed: t.hasConfirmed }))
+      ];
+
+      return `
+        <!-- 1. 置頂紅金限時優惠橫幅 -->
+        <div class="bg-gradient-to-r from-crimson-950 via-crimson-600 to-crimson-950 text-white border-b-2 border-gold-500">
+          <div class="max-w-7xl mx-auto px-3 sm:px-6 py-2 flex flex-wrap items-center justify-between gap-2 text-xs sm:text-sm">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-gold-200 via-gold-400 to-gold-500 text-crimson-950 font-black shadow-sm">
+                🧧 限時早鳥
+              </span>
+              <p class="font-bold tracking-wide text-gold-50">
+                迎春、賀歲行程預購優惠延長到 <span class="text-gold-200 underline decoration-gold-400 decoration-2 underline-offset-4 font-black">12/18 前</span> 適用｜早鳥卡位享專屬禮遇
+              </p>
+              <span class="hidden md:inline-flex items-center px-2.5 py-0.5 rounded-full bg-black/35 border border-gold-400/50 text-gold-200 font-bold text-[11px]">
+                ${getPromoCountdownText()}
+              </span>
+            </div>
+            ${showTools ? `
+              <button
+                type="button"
+                onclick="copyGlobalPromoPitch()"
+                class="ml-auto inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-gold-500 hover:bg-gold-400 text-crimson-950 font-black text-xs transition-colors shadow-sm"
+              >
+                📋 複製 12/18 優惠話術
+              </button>
+            ` : ''}
+          </div>
+        </div>
+
+        <!-- 2. 吸頂標題、核心工具列與 7 大分頁切換鈕 -->
+        <header class="sticky top-0 z-50 bg-ivory-100/95 backdrop-blur-md border-b border-gold-500/45 shadow-md">
+          <div class="max-w-7xl mx-auto px-3 sm:px-6 pt-2.5 pb-2 space-y-2.5">
+            <!-- 上排：標題「春節」 ＋ 右側三大核心工具按鈕 -->
+            <div class="flex flex-wrap items-center justify-between gap-2.5">
+              <button
+                type="button"
+                onclick="switchTab('home')"
+                class="flex items-center gap-2.5 text-left group focus:outline-none"
+              >
+                <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-crimson-600 via-crimson-700 to-crimson-950 text-gold-200 border-2 border-gold-400 flex items-center justify-center font-serif font-black text-xl sm:text-2xl shadow-md group-hover:scale-105 transition-transform">
+                  春
+                </div>
+                <div>
+                  <div class="flex items-baseline gap-2">
+                    <span class="font-serif font-black text-crimson-600 text-xl sm:text-2xl tracking-wider">春節</span>
+                    <span class="text-xs sm:text-sm font-bold text-stone-700 hidden lg:inline">2027 韓國迎春・賀歲精選 5 日遊</span>
+                  </div>
+                  <p class="text-[11px] font-semibold text-crimson-700/90 lg:hidden">2027 韓國迎春・賀歲 6 行程</p>
+                </div>
+              </button>
+
+              <!-- 右側三大核心工具按鈕 -->
+              <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                ${showTools ? `
+                  <button
+                    type="button"
+                    onclick="openModal('manager')"
+                    class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white hover:bg-gold-50 border border-gold-400 text-crimson-800 text-xs font-extrabold shadow-sm transition-all"
+                  >
+                    <span>📷 批次管理實景照</span>
+                    <span class="px-1.5 py-0.5 rounded-md ${uploadedCount === TOTAL_SLOTS ? 'bg-emerald-600 text-white' : 'bg-crimson-600 text-gold-100'} text-[11px] font-black">${uploadedCount}/${TOTAL_SLOTS}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onclick="openModal('export')"
+                    class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-crimson-600 to-crimson-800 hover:from-crimson-700 hover:to-crimson-900 text-gold-100 border border-gold-400/80 text-xs font-extrabold shadow-sm transition-all"
+                  >
+                    💾 匯出成品網頁
+                  </button>
+                ` : ''}
+
+                ${!state.clientOnlyLocked ? `
+                  <button
+                    type="button"
+                    onclick="toggleClientMode()"
+                    class="inline-flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-extrabold transition-all shadow-sm ${state.isClientMode ? 'bg-emerald-700 text-white border-emerald-500' : 'bg-white text-ink border-gold-400 hover:border-crimson-600'}"
+                  >
+                    <span>${state.isClientMode ? '👁️ 客戶展示模式中' : '👁️ 客戶展示模式'}</span>
+                    <span class="w-8 h-4 rounded-full ${state.isClientMode ? 'bg-emerald-400' : 'bg-stone-300'} relative inline-flex items-center p-0.5 transition-colors">
+                      <span class="w-3 h-3 rounded-full bg-white shadow transform transition-transform ${state.isClientMode ? 'translate-x-4' : 'translate-x-0'}"></span>
+                    </span>
+                  </button>
+                ` : `
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-crimson-50 border border-gold-300 text-crimson-700 text-xs font-bold">
+                    🏮 2027 新春貴賓專屬手冊
+                  </span>
+                `}
+              </div>
+            </div>
+
+            <!-- 下排：7 大分頁切換按鈕列（橫向可滑動） -->
+            <nav aria-label="六大行程分頁切換" class="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar pb-0.5">
+              ${tabs.map(tab => {
+                const isActive = state.activeTab === tab.id;
+                return `
+                  <button
+                    type="button"
+                    onclick="switchTab('${tab.id}')"
+                    class="shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-extrabold transition-all border ${
+                      isActive
+                        ? 'bg-gradient-to-r from-crimson-600 to-crimson-800 text-gold-100 border-gold-400 shadow-md'
+                        : 'bg-white/90 hover:bg-crimson-50 text-stone-700 hover:text-crimson-700 border-ivory-300'
+                    }"
+                  >
+                    <span>${tab.label}</span>
+                    ${tab.hasConfirmed ? `<span class="w-2 h-2 rounded-full ${isActive ? 'bg-gold-300' : 'bg-crimson-500'} animate-pulse" title="含已成行團期"></span>` : ''}
+                  </button>
+                `;
+              }).join('')}
+            </nav>
+          </div>
+        </header>
+      `;
+    }
+
+    /**
+     * 渲染首頁：六大行程特色總覽
+     */
+    function renderHomeView() {
+      const filters = [
+        { id: 'all',       label: '全部', count: TOURS.length },
+        { id: 'yingchun',  label: '🌸 迎春超值系列', count: TOURS.filter(t => t.series === 'yingchun').length },
+        { id: 'hesui',     label: '🧧 賀歲尊爵系列', count: TOURS.filter(t => t.series === 'hesui').length },
+        { id: 'taoyuan',   label: '✈️ 桃園出發', count: TOURS.filter(t => t.origin === 'taoyuan').length },
+        { id: 'kaohsiung', label: '✈️ 高雄出發', count: TOURS.filter(t => t.origin === 'kaohsiung').length },
+        { id: 'confirmed', label: '🔥 已成行團體', count: TOURS.filter(t => t.hasConfirmed).length }
+      ];
+
+      const filteredTours = TOURS.filter(t => {
+        if (state.homeFilter === 'yingchun') return t.series === 'yingchun';
+        if (state.homeFilter === 'hesui') return t.series === 'hesui';
+        if (state.homeFilter === 'taoyuan') return t.origin === 'taoyuan';
+        if (state.homeFilter === 'kaohsiung') return t.origin === 'kaohsiung';
+        if (state.homeFilter === 'confirmed') return t.hasConfirmed;
+        return true;
+      });
+
+      const uploadedCount = getUploadedCount();
+      const showTools = !state.isClientMode && !state.clientOnlyLocked;
+
+      return `
+        <div class="fade-in space-y-8">
+          <!-- 首頁春節雜誌感主視覺 Hero Banner -->
+          <section class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-crimson-950 via-crimson-700 to-crimson-900 text-white border-2 border-gold-500/70 p-6 sm:p-9 shadow-xl">
+            <!-- 裝飾紅燈籠與祥雲幾何光暈 -->
+            <svg class="absolute right-0 top-0 h-full w-1/2 opacity-15 pointer-events-none" viewBox="0 0 400 260" fill="none">
+              <circle cx="310" cy="70" r="110" stroke="#E5C46F" stroke-width="1.5" stroke-dasharray="6 6"/>
+              <circle cx="310" cy="70" r="72" stroke="#E5C46F" stroke-width="1"/>
+              <ellipse cx="345" cy="95" rx="22" ry="30" fill="#E5C46F" fill-opacity="0.45"/>
+              <line x1="345" y1="0" x2="345" y2="65" stroke="#E5C46F" stroke-width="2"/>
+              <ellipse cx="275" cy="68" rx="16" ry="22" fill="#E5C46F" fill-opacity="0.35"/>
+              <line x1="275" y1="0" x2="275" y2="46" stroke="#E5C46F" stroke-width="1.5"/>
+            </svg>
+
+            <div class="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+              <div class="space-y-3 max-w-2xl">
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="px-3 py-1 rounded-full bg-gold-500/20 border border-gold-300/70 text-gold-200 text-xs font-extrabold tracking-widest">
+                    2027 新春特輯・韓國精選 5 日遊
+                  </span>
+                  <span class="px-3 py-1 rounded-full bg-white/15 border border-white/25 text-white text-xs font-bold">
+                    首爾・釜山・濟州 6 支王牌路線一次看
+                  </span>
+                </div>
+                <h1 class="font-serif font-black text-2xl sm:text-4xl leading-tight tracking-wide text-gold-50">
+                  春節迎春・賀歲韓國精選總覽
+                </h1>
+                <p class="text-sm sm:text-base text-gold-100/90 leading-relaxed">
+                  從 <strong class="text-gold-200">$24,888 起</strong> 的高 CP 值「迎春超值系列」，到保證入住樂高飯店、大啖機張松葉長腳蟹、享 ₩149,000 藍鼎豪華龍蝦百匯的「賀歲尊爵系列」，點擊任一行程即可查看 7 大核心細節與報價！
+                </p>
+              </div>
+
+              ${showTools ? `
+                <!-- 業務快速換圖與匯出指引小卡 -->
+                <div class="bg-black/30 backdrop-blur-md border border-gold-400/50 rounded-2xl p-4 sm:p-5 max-w-md w-full space-y-2.5">
+                  <div class="flex items-center justify-between gap-2">
+                    <span class="text-xs font-black text-gold-300">💼 業務實景圖製作進度</span>
+                    <span class="text-xs font-black px-2 py-0.5 rounded-full bg-gold-500 text-crimson-950">${uploadedCount} / ${TOTAL_SLOTS} 張實景照</span>
+                  </div>
+                  <div class="w-full h-2 rounded-full bg-white/15 overflow-hidden">
+                    <div class="h-full bg-gradient-to-r from-gold-300 to-gold-500 transition-all duration-300" style="width:${Math.round((uploadedCount / TOTAL_SLOTS) * 100)}%"></div>
+                  </div>
+                  <p class="text-[11px] text-gold-100/85 leading-relaxed">
+                    直接<strong>點擊或拖曳</strong>電腦裡的風景照到下方卡片即可換圖（自動壓縮暫存），完成後按右上角「<strong>💾 匯出成品網頁</strong>」即可離線傳給同事或客戶！
+                  </p>
+                </div>
+              ` : `
+                <div class="bg-black/25 backdrop-blur-md border border-gold-400/50 rounded-2xl p-4 sm:p-5 max-w-sm w-full">
+                  <p class="text-xs font-black text-gold-300 mb-1">🧧 預購早鳥延長通知</p>
+                  <p class="text-sm font-bold text-white leading-relaxed">「迎春、賀歲」行程預購優惠延長至 <span class="text-gold-200 underline">12/18 前</span> 適用，多檔熱門春節團已保證成行！</p>
+                </div>
+              `}
+            </div>
+          </section>
+
+          <!-- 快速篩選列 -->
+          <section class="flex flex-wrap items-center justify-between gap-3">
+            <div class="flex flex-wrap items-center gap-2">
+              ${filters.map(f => {
+                const active = state.homeFilter === f.id;
+                return `
+                  <button
+                    type="button"
+                    onclick="setHomeFilter('${f.id}')"
+                    class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-extrabold border transition-all ${
+                      active
+                        ? 'bg-crimson-600 text-gold-100 border-gold-400 shadow-md'
+                        : 'bg-white hover:bg-crimson-50 text-stone-700 border-ivory-300'
+                    }"
+                  >
+                    <span>${f.label}</span>
+                    <span class="px-1.5 py-0.5 rounded-full text-[11px] ${active ? 'bg-black/25 text-gold-200' : 'bg-ivory-200 text-stone-600'}">${f.count}</span>
+                  </button>
+                `;
+              }).join('')}
+            </div>
+            <p class="text-xs text-stone-500 font-medium">共顯示 <strong class="text-crimson-700">${filteredTours.length}</strong> 支精選行程</p>
+          </section>
+
+          <!-- 3×2 行程特色總覽卡片牆 -->
+          <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            ${filteredTours.map(tour => renderHomeTourCard(tour)).join('')}
+          </section>
+
+          <!-- 首頁 10 秒快速選團橫向比較總表 -->
+          <section class="bg-white rounded-3xl border border-gold-300/70 cny-card overflow-hidden">
+            <div class="px-5 sm:px-7 py-5 bg-gradient-to-r from-crimson-900 via-crimson-700 to-crimson-800 text-white flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <span class="text-[11px] font-black tracking-widest text-gold-300 uppercase">Quick Sales Matrix</span>
+                <h2 class="font-serif font-black text-lg sm:text-xl text-gold-50">⏱️ 10 秒快速選團比較總表（6 支行程橫向對照）</h2>
+              </div>
+              <span class="text-xs font-bold px-3 py-1 rounded-full bg-white/15 border border-gold-400/50 text-gold-200">
+                左右滑動檢視完整欄位・點擊行程名稱直接進入
+              </span>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse min-w-[960px] text-xs sm:text-sm">
+                <thead>
+                  <tr class="bg-ivory-200/80 text-crimson-900 border-b border-gold-300/60">
+                    <th class="py-3.5 px-4 font-black w-48">行程名稱</th>
+                    <th class="py-3.5 px-3 font-black w-28">最低起價</th>
+                    <th class="py-3.5 px-3 font-black w-44">出發機場 / 航空</th>
+                    <th class="py-3.5 px-3 font-black w-40">成行亮點</th>
+                    <th class="py-3.5 px-3 font-black">主打必玩景點</th>
+                    <th class="py-3.5 px-3 font-black">頂級住宿</th>
+                    <th class="py-3.5 px-3 font-black">最高餐標美食</th>
+                    <th class="py-3.5 px-3 font-black w-44">適合客群</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-ivory-200">
+                  ${TOURS.map(t => `
+                    <tr class="hover:bg-gold-50/70 transition-colors">
+                      <td class="py-3.5 px-4 align-top">
+                        <button type="button" onclick="switchTab('${t.id}')" class="text-left group">
+                          <span class="inline-block text-[11px] font-extrabold px-2 py-0.5 rounded-md mb-1 ${t.series === 'hesui' ? 'bg-crimson-600 text-gold-100' : 'bg-gold-100 text-crimson-800 border border-gold-300'}">${t.seriesLabel}</span>
+                          <div class="font-extrabold text-crimson-800 group-hover:text-crimson-600 group-hover:underline leading-snug">${t.shortTitle} →</div>
+                        </button>
+                      </td>
+                      <td class="py-3.5 px-3 align-top font-black text-crimson-600 text-base whitespace-nowrap">${t.priceText}</td>
+                      <td class="py-3.5 px-3 align-top">
+                        <div class="font-bold text-stone-800">${t.originLabel}</div>
+                        <div class="text-xs text-stone-500 mt-0.5">${t.airlineSummary}</div>
+                      </td>
+                      <td class="py-3.5 px-3 align-top">
+                        ${t.hasConfirmed
+                          ? `<span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-crimson-100 text-crimson-700 font-black text-xs">${t.confirmedText}</span>`
+                          : `<span class="text-stone-600 font-semibold text-xs">${t.confirmedText}</span>`
+                        }
+                      </td>
+                      <td class="py-3.5 px-3 align-top text-xs text-stone-700 leading-relaxed">${t.highlights.map(h => h.title.split('＋')[0]).join('、')}</td>
+                      <td class="py-3.5 px-3 align-top text-xs text-stone-700 leading-relaxed font-medium">${t.hotelOneLine}</td>
+                      <td class="py-3.5 px-3 align-top text-xs text-crimson-800 font-bold leading-relaxed">${t.mealsHighlight[0].name}（${t.mealsHighlight[0].price}）</td>
+                      <td class="py-3.5 px-3 align-top text-xs text-stone-600 leading-relaxed">${t.targetAudience}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      `;
+    }
+
+    /**
+     * 渲染首頁單張行程卡片
+     */
+    function renderHomeTourCard(tour) {
+      const badgeHtml = `
+        <div class="absolute top-2.5 left-2.5 z-10 flex flex-wrap items-center gap-1.5 pointer-events-none">
+          <span class="px-2.5 py-1 rounded-xl text-[11px] font-black shadow-md ${
+            tour.series === 'hesui'
+              ? 'bg-gradient-to-r from-crimson-600 to-crimson-800 text-gold-200 border border-gold-400/70'
+              : 'bg-white/95 text-crimson-700 border border-gold-300'
+          }">${tour.seriesLabel}</span>
+          ${tour.hasConfirmed ? `
+            <span class="px-2.5 py-1 rounded-xl text-[11px] font-black bg-gold-500 text-crimson-950 shadow-md">🔥 已成行</span>
+          ` : ''}
+        </div>
+      `;
+
+      return `
+        <article class="bg-white rounded-3xl border border-gold-300/75 cny-card overflow-hidden flex flex-col justify-between transition-transform duration-200 hover:-translate-y-1">
+          <div>
+            <!-- 行程封面實景圖（支援點擊/拖曳換圖；若未單獨上傳封面則自動借用本團第1張景點照） -->
+            <div class="p-3 pb-0">
+              ${renderPhotoSlotBox({
+                tourId: tour.id,
+                slot: 'cover',
+                label: `${tour.numBadge} ${tour.shortTitle}`,
+                theme: tour.coverTheme,
+                aspectClass: 'aspect-[16/10]',
+                allowCoverFallback: true,
+                badgeHtml,
+                roundedClass: 'rounded-2xl'
+              })}
+            </div>
+
+            <!-- 卡片主文字資訊 -->
+            <div class="p-5 space-y-3.5">
+              <!-- 出發城市 / 航空 / 最低起價 -->
+              <div class="flex items-start justify-between gap-2">
+                <div class="space-y-1">
+                  <div class="flex flex-wrap items-center gap-1.5 text-[11px] font-bold">
+                    <span class="px-2 py-0.5 rounded-md ${tour.origin === 'kaohsiung' ? 'bg-amber-100 text-amber-800' : 'bg-crimson-50 text-crimson-700'}">✈️ ${tour.originLabel}</span>
+                    <span class="text-stone-500">${tour.flight.airline}</span>
+                  </div>
+                  <h3 class="font-serif font-black text-lg text-ink leading-snug">
+                    ${tour.numBadge} ${tour.title}
+                  </h3>
+                </div>
+                <div class="text-right shrink-0">
+                  <span class="block text-[10px] font-bold text-stone-400">團費起價</span>
+                  <span class="font-black text-xl text-crimson-600 tracking-tight">${formatPrice(tour.minPrice)}<span class="text-xs font-bold">起</span></span>
+                </div>
+              </div>
+
+              <!-- 成行狀態提示 -->
+              <div class="px-3 py-1.5 rounded-xl text-xs font-bold flex items-center justify-between ${
+                tour.hasConfirmed ? 'bg-crimson-50 border border-crimson-200 text-crimson-700' : 'bg-ivory-100 border border-ivory-300 text-stone-700'
+              }">
+                <span>${tour.confirmedText}</span>
+                <span class="text-[11px] opacity-80">共 ${tour.departures.length} 團期</span>
+              </div>
+
+              <!-- 3 點精簡核心賣點 -->
+              <ul class="space-y-1.5 text-xs text-stone-700 leading-relaxed">
+                ${tour.summaryPoints.map(pt => `
+                  <li class="flex items-start gap-2">
+                    <span class="text-gold-600 font-black mt-0.5 shrink-0">✦</span>
+                    <span>${escapeHtml(pt)}</span>
+                  </li>
+                `).join('')}
+              </ul>
+
+              <!-- 住宿與餐食一句話亮點 -->
+              <div class="pt-2.5 border-t border-ivory-200 space-y-1.5 text-xs">
+                <p class="flex items-start gap-1.5 text-stone-700">
+                  <span class="shrink-0">🏨</span>
+                  <span><strong class="text-stone-900">住宿：</strong>${escapeHtml(tour.hotelOneLine)}</span>
+                </p>
+                <p class="flex items-start gap-1.5 text-stone-700">
+                  <span class="shrink-0">🍽️</span>
+                  <span><strong class="text-crimson-800">美食：</strong>${escapeHtml(tour.mealOneLine)}</span>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 底部操作鈕 -->
+          <div class="px-5 pb-5 pt-1 flex items-center gap-2">
+            <button
+              type="button"
+              onclick="switchTab('${tour.id}')"
+              class="flex-1 py-3 px-4 rounded-2xl bg-gradient-to-r from-crimson-600 to-crimson-800 hover:from-crimson-700 hover:to-crimson-950 text-gold-100 font-extrabold text-sm shadow-md transition-all flex items-center justify-center gap-1.5"
+            >
+              <span>查看完整 7 大細節</span>
+              <span>→</span>
+            </button>
+            <button
+              type="button"
+              onclick="copyTourQuote('${tour.id}')"
+              class="py-3 px-3.5 rounded-2xl bg-gold-100 hover:bg-gold-200 text-crimson-900 border border-gold-400/70 font-extrabold text-xs transition-colors shrink-0"
+              title="一鍵複製此團 LINE 報價文案"
+            >
+              📋 LINE報價
+            </button>
+          </div>
+        </article>
+      `;
+    }
+
+    // =========================================================================
+    // 9. 單一行程獨立頁面：完整 7 大核心銷售資訊模組
+    // =========================================================================
+    function renderTourDetailView(tour) {
+      const selectedIdx = state.selectedDateIdx[tour.id] || 0;
+      const selectedDep = tour.departures[selectedIdx] || tour.departures[0];
+      const showInternal = !state.isClientMode && !state.clientOnlyLocked;
+
+      const anchors = [
+        { id: 'sec-1', label: '1.出發日期' },
+        { id: 'sec-2', label: '2.航班資訊' },
+        { id: 'sec-3', label: '3.賣點核心' },
+        { id: 'sec-4', label: '4.飯店規格' },
+        { id: 'sec-5', label: '5.餐食資訊' },
+        { id: 'sec-6', label: '6.每日行程' },
+        { id: 'sec-7', label: '7.優惠與報價' }
+      ];
+
+      return `
+        <div class="fade-in space-y-8">
+          <!-- 行程頂部 Hero 總覽與 1~7 快捷錨點 -->
+          <section class="bg-white rounded-3xl border border-gold-300/80 cny-card overflow-hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-0">
+              <!-- 左側：行程封面實景圖（支援點擊/拖曳上傳） -->
+              <div class="lg:col-span-5 p-4 sm:p-5 bg-ivory-100/70 flex items-center">
+                ${renderPhotoSlotBox({
+                  tourId: tour.id,
+                  slot: 'cover',
+                  label: tour.coverSlotName,
+                  theme: tour.coverTheme,
+                  aspectClass: 'aspect-[16/11]',
+                  allowCoverFallback: true,
+                  roundedClass: 'rounded-2xl',
+                  badgeHtml: `
+                    <div class="absolute top-2.5 left-2.5 z-10 flex items-center gap-1.5 pointer-events-none">
+                      <span class="px-2.5 py-1 rounded-xl text-xs font-black bg-crimson-700 text-gold-100 border border-gold-400/70 shadow">${tour.seriesLabel}</span>
+                    </div>
+                  `
+                })}
+              </div>
+
+              <!-- 右側：行程標題、關鍵亮點與 1~7 錨點導覽 -->
+              <div class="lg:col-span-7 p-5 sm:p-7 flex flex-col justify-between gap-4">
+                <div class="space-y-3">
+                  <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div class="flex flex-wrap items-center gap-2 text-xs font-bold">
+                      <button type="button" onclick="switchTab('home')" class="px-2.5 py-1 rounded-lg bg-ivory-200 hover:bg-gold-200 text-stone-700 transition-colors">← 回六大總覽</button>
+                      <span class="px-2.5 py-1 rounded-lg bg-crimson-50 text-crimson-700 border border-crimson-200">✈️ ${tour.originLabel}・${tour.flight.airline}</span>
+                      ${showInternal ? `<span class="px-2.5 py-1 rounded-lg bg-stone-100 text-stone-600 font-mono">代碼：${tour.code}</span>` : ''}
+                    </div>
+                    ${tour.hasConfirmed ? `<span class="px-3 py-1 rounded-full bg-crimson-600 text-gold-100 text-xs font-black shadow-sm">${tour.confirmedText}</span>` : ''}
+                  </div>
+
+                  <h1 class="font-serif font-black text-2xl sm:text-3xl text-crimson-900 leading-snug">
+                    ${tour.numBadge} ${tour.title}
+                  </h1>
+
+                  <div class="flex flex-wrap items-end gap-4 pt-1">
+                    <div>
+                      <span class="text-xs font-bold text-stone-400 block">專案團費起價</span>
+                      <span class="font-black text-3xl text-crimson-600">${tour.priceText}</span>
+                    </div>
+                    <div class="px-3.5 py-2 rounded-2xl bg-gold-50 border border-gold-300 text-xs text-crimson-900 font-bold">
+                      🧧 預購優惠延長到 <span class="text-crimson-600 underline font-black">12/18 前</span> 適用
+                    </div>
+                  </div>
+
+                  ${showInternal ? `
+                    <!-- 業務專屬 30 秒破冰話術（客戶模式自動隱藏） -->
+                    <div class="p-3.5 rounded-2xl bg-crimson-50/90 border border-crimson-200 text-xs sm:text-sm text-crimson-950 leading-relaxed">
+                      <span class="inline-block px-2 py-0.5 rounded-md bg-crimson-600 text-gold-100 text-[11px] font-black mr-1.5">💼 業務推銷破冰話術</span>
+                      ${escapeHtml(tour.salesPitch)}
+                    </div>
+                  ` : `
+                    <p class="text-sm text-stone-700 leading-relaxed">
+                      <strong>推薦對象：</strong>${escapeHtml(tour.targetAudience)}
+                    </p>
+                  `}
+                </div>
+
+                <!-- 1~7 區塊小錨點快捷跳轉列 -->
+                <div class="pt-3 border-t border-ivory-200">
+                  <div class="flex flex-wrap items-center gap-1.5">
+                    ${anchors.map(a => `
+                      <button
+                        type="button"
+                        onclick="scrollToSection('${a.id}')"
+                        class="px-3 py-1.5 rounded-xl bg-ivory-100 hover:bg-crimson-600 hover:text-gold-100 text-crimson-900 border border-gold-300/70 text-xs font-extrabold transition-colors"
+                      >
+                        ${a.label}
+                      </button>
+                    `).join('')}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- =============================================================== -->
+          <!-- 區塊 1：出發日期與價格席次表（點選連動下方第 7 區 LINE 報價）     -->
+          <!-- =============================================================== -->
+          <section id="sec-1" class="bg-white rounded-3xl border border-gold-300/75 cny-card overflow-hidden">
+            <div class="px-5 sm:px-7 py-4 bg-gradient-to-r from-crimson-800 to-crimson-600 text-white flex flex-wrap items-center justify-between gap-2">
+              <div class="flex items-center gap-2.5">
+                <span class="w-8 h-8 rounded-xl bg-gold-500 text-crimson-950 font-black flex items-center justify-center text-sm">1</span>
+                <div>
+                  <h2 class="font-serif font-black text-lg text-gold-50">出發日期與團費一覽</h2>
+                  <p class="text-[11px] text-gold-200">點擊任一日期列，下方第 7 區 LINE 報價文案將即時帶入該日期與價格</p>
+                </div>
+              </div>
+              <span class="text-xs font-bold px-3 py-1 rounded-full bg-black/25 text-gold-200">共 ${tour.departures.length} 個出發檔期</span>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                <thead>
+                  <tr class="bg-ivory-100 text-crimson-900 border-b border-gold-200">
+                    <th class="py-3 px-4 font-black">選取報價</th>
+                    <th class="py-3 px-4 font-black">出發日期</th>
+                    <th class="py-3 px-4 font-black">成行 / 報名狀態</th>
+                    ${showInternal ? `<th class="py-3 px-4 font-black">可賣 / 席次</th>` : ''}
+                    <th class="py-3 px-4 font-black text-right">團費價格</th>
+                    <th class="py-3 px-4 font-black hidden sm:table-cell">檔期備註</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-ivory-200">
+                  ${tour.departures.map((d, idx) => {
+                    const isSelected = idx === selectedIdx;
+                    const isFull = d.status === '額滿';
+                    return `
+                      <tr
+                        onclick="selectTourDate('${tour.id}', ${idx})"
+                        class="cursor-pointer transition-colors ${isSelected ? 'bg-gold-50/90 ring-2 ring-inset ring-gold-500' : 'hover:bg-crimson-50/40'}"
+                      >
+                        <td class="py-3.5 px-4">
+                          <span class="inline-flex items-center justify-center w-5 h-5 rounded-full border-2 ${isSelected ? 'border-crimson-600 bg-crimson-600 text-white' : 'border-stone-300 bg-white'} text-[11px] font-black">
+                            ${isSelected ? '✓' : ''}
+                          </span>
+                        </td>
+                        <td class="py-3.5 px-4 font-extrabold text-stone-900 whitespace-nowrap">
+                          ${d.date} <span class="text-crimson-700">(${d.day})</span>
+                        </td>
+                        <td class="py-3.5 px-4 whitespace-nowrap">
+                          <div class="flex flex-wrap items-center gap-1.5">
+                            ${d.confirmed ? `<span class="px-2 py-0.5 rounded-md bg-crimson-600 text-gold-100 text-[11px] font-black">🔥 成行</span>` : ''}
+                            <span class="px-2 py-0.5 rounded-md text-[11px] font-bold ${isFull ? 'bg-stone-200 text-stone-600' : 'bg-emerald-100 text-emerald-800'}">${d.status}</span>
+                          </div>
+                        </td>
+                        ${showInternal ? `
+                          <td class="py-3.5 px-4 whitespace-nowrap font-bold ${d.avail <= 5 ? 'text-crimson-600' : 'text-stone-700'}">
+                            可賣 <span class="text-base font-black">${d.avail}</span> / ${d.total}
+                          </td>
+                        ` : ''}
+                        <td class="py-3.5 px-4 text-right font-black text-base sm:text-lg text-crimson-600 whitespace-nowrap">
+                          ${formatPrice(d.price)}
+                        </td>
+                        <td class="py-3.5 px-4 hidden sm:table-cell text-xs font-bold ${d.lowest ? 'text-amber-700' : 'text-stone-500'}">
+                          ${escapeHtml(d.tag || '')}
+                        </td>
+                      </tr>
+                    `;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- =============================================================== -->
+          <!-- 區塊 2：航班資訊（擬真春節金紅登機證卡片）                        -->
+          <!-- =============================================================== -->
+          <section id="sec-2" class="bg-white rounded-3xl border border-gold-300/75 cny-card overflow-hidden">
+            <div class="px-5 sm:px-7 py-4 bg-gradient-to-r from-crimson-800 to-crimson-600 text-white flex flex-wrap items-center justify-between gap-2">
+              <div class="flex items-center gap-2.5">
+                <span class="w-8 h-8 rounded-xl bg-gold-500 text-crimson-950 font-black flex items-center justify-center text-sm">2</span>
+                <div>
+                  <h2 class="font-serif font-black text-lg text-gold-50">航班資訊（${tour.flight.airline}）</h2>
+                  <p class="text-[11px] text-gold-200">航班時間僅為參考，最終確定之使用航班以行前說明會資料為準</p>
+                </div>
+              </div>
+              ${showInternal ? `<span class="text-xs font-mono font-bold px-3 py-1 rounded-full bg-black/30 text-gold-200">產品代碼：${tour.code}</span>` : ''}
+            </div>
+
+            <div class="p-5 sm:p-7 space-y-5">
+              <!-- 航班特色標籤 -->
+              <div class="flex flex-wrap gap-2">
+                ${tour.flight.badges.map(b => `
+                  <span class="px-3 py-1 rounded-full bg-gold-50 border border-gold-300 text-crimson-900 text-xs font-extrabold">✈️ ${escapeHtml(b)}</span>
+                `).join('')}
+              </div>
+
+              <!-- 擬真去程 / 回程雙登機證 -->
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                ${renderBoardingPass('去程 OUTBOUND', tour.flight.airline, tour.flight.out, false)}
+                ${renderBoardingPass('回程 INBOUND', tour.flight.airline, tour.flight.in, true)}
+              </div>
+            </div>
+          </section>
+
+          <!-- =============================================================== -->
+          <!-- 區塊 3：賣點核心（2×2 大圖文雜誌卡片，支援點擊/拖曳換實景照）     -->
+          <!-- =============================================================== -->
+          <section id="sec-3" class="space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="flex items-center gap-2.5">
+                <span class="w-9 h-9 rounded-xl bg-crimson-600 text-gold-200 font-black flex items-center justify-center text-base shadow">3</span>
+                <div>
+                  <h2 class="font-serif font-black text-xl sm:text-2xl text-crimson-900">賣點核心（圖文深度介紹）</h2>
+                  ${showInternal ? `<p class="text-xs text-stone-500">💡 點擊或拖曳電腦中的實景照至任一景點卡片即可替換，自動壓縮暫存</p>` : ''}
+                </div>
+              </div>
+              ${showInternal ? `
+                <button type="button" onclick="state.managerFilterTour='${tour.id}'; openModal('manager')" class="px-3 py-1.5 rounded-xl bg-white hover:bg-gold-50 border border-gold-400 text-crimson-800 text-xs font-extrabold shadow-sm">
+                  📷 批次管理本團 5 張照片
+                </button>
+              ` : ''}
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              ${tour.highlights.map((h, i) => `
+                <article class="bg-white rounded-3xl border border-gold-300/75 cny-card overflow-hidden flex flex-col">
+                  <div class="p-3 pb-0">
+                    ${renderPhotoSlotBox({
+                      tourId: tour.id,
+                      slot: h.slot,
+                      label: h.title,
+                      theme: h.theme,
+                      aspectClass: 'aspect-[16/10]',
+                      allowCoverFallback: false,
+                      roundedClass: 'rounded-2xl',
+                      badgeHtml: `
+                        <div class="absolute top-2.5 left-2.5 z-10 pointer-events-none">
+                          <span class="px-2.5 py-1 rounded-xl bg-crimson-950/85 text-gold-200 border border-gold-400/60 text-[11px] font-black backdrop-blur-sm">
+                            賣點 0${i + 1}・${escapeHtml(h.tag)}
+                          </span>
+                        </div>
+                      `
+                    })}
+                  </div>
+                  <div class="p-5 space-y-2 flex-1">
+                    <h3 class="font-serif font-black text-lg text-crimson-900 leading-snug">${escapeHtml(h.title)}</h3>
+                    <p class="text-sm text-stone-700 leading-relaxed">${escapeHtml(h.desc)}</p>
+                  </div>
+                </article>
+              `).join('')}
+            </div>
+          </section>
+
+          <!-- =============================================================== -->
+          <!-- 區塊 4：飯店規格（星級徽章、連住晚數、保證入住亮點）              -->
+          <!-- =============================================================== -->
+          <section id="sec-4" class="bg-white rounded-3xl border border-gold-300/75 cny-card overflow-hidden">
+            <div class="px-5 sm:px-7 py-4 bg-gradient-to-r from-crimson-800 to-crimson-600 text-white flex items-center gap-2.5">
+              <span class="w-8 h-8 rounded-xl bg-gold-500 text-crimson-950 font-black flex items-center justify-center text-sm">4</span>
+              <div>
+                <h2 class="font-serif font-black text-lg text-gold-50">飯店規格與升等亮點</h2>
+                <p class="text-[11px] text-gold-200">嚴選連泊免天天搬行李與重點星級升等安排</p>
+              </div>
+            </div>
+
+            <div class="p-5 sm:p-7 grid grid-cols-1 ${tour.hotels.length >= 2 ? 'md:grid-cols-2' : ''} gap-5">
+              ${tour.hotels.map(h => `
+                <div class="rounded-2xl p-5 border-2 ${h.upgrade ? 'bg-gradient-to-br from-gold-50 via-white to-crimson-50/40 border-gold-400 shadow-md' : 'bg-ivory-100/70 border-ivory-300'} space-y-2.5">
+                  <div class="flex flex-wrap items-center justify-between gap-2">
+                    <span class="text-xs font-extrabold text-stone-600">🌙 ${escapeHtml(h.nights)}</span>
+                    <span class="px-2.5 py-1 rounded-full text-xs font-black ${h.upgrade ? 'bg-crimson-600 text-gold-100' : 'bg-stone-200 text-stone-700'}">${escapeHtml(h.badge)}</span>
+                  </div>
+                  <h3 class="font-serif font-black text-lg text-crimson-900 leading-snug">${escapeHtml(h.name)}</h3>
+                  <p class="text-xs sm:text-sm text-stone-700 leading-relaxed">${escapeHtml(h.desc)}</p>
+                </div>
+              `).join('')}
+            </div>
+          </section>
+
+          <!-- =============================================================== -->
+          <!-- 區塊 5：餐食資訊（透明韓幣餐標與特色王牌美食）                    -->
+          <!-- =============================================================== -->
+          <section id="sec-5" class="bg-white rounded-3xl border border-gold-300/75 cny-card overflow-hidden">
+            <div class="px-5 sm:px-7 py-4 bg-gradient-to-r from-crimson-800 to-crimson-600 text-white flex flex-wrap items-center justify-between gap-2">
+              <div class="flex items-center gap-2.5">
+                <span class="w-8 h-8 rounded-xl bg-gold-500 text-crimson-950 font-black flex items-center justify-center text-sm">5</span>
+                <div>
+                  <h2 class="font-serif font-black text-lg text-gold-50">餐食資訊與透明韓幣餐標</h2>
+                  <p class="text-[11px] text-gold-200">公開透明餐標、名店推薦與特色饗宴完整呈現</p>
+                </div>
+              </div>
+              <span class="text-xs font-black px-3 py-1 rounded-full bg-gold-500 text-crimson-950">🍽️ 餐標透明最安心</span>
+            </div>
+
+            <div class="p-5 sm:p-7 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              ${tour.mealsHighlight.map((m, idx) => `
+                <div class="rounded-2xl p-4 border ${idx === 0 ? 'bg-gradient-to-br from-crimson-50 to-gold-50 border-crimson-300 shadow-sm' : 'bg-ivory-100/60 border-ivory-300'} flex flex-col justify-between gap-2">
+                  <div class="flex items-center justify-between gap-2">
+                    <span class="text-xs font-extrabold text-stone-500">${escapeHtml(m.day)}</span>
+                    <span class="px-2 py-0.5 rounded-full text-[11px] font-black ${idx === 0 ? 'bg-crimson-600 text-gold-100' : 'bg-gold-100 text-crimson-800'}">${escapeHtml(m.badge)}</span>
+                  </div>
+                  <h3 class="font-bold text-sm sm:text-base text-ink leading-snug">${escapeHtml(m.name)}</h3>
+                  <div class="pt-1 text-right">
+                    <span class="inline-block px-2.5 py-0.5 rounded-lg bg-white border border-gold-300 font-black text-xs sm:text-sm text-crimson-700">餐標：${escapeHtml(m.price)}</span>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </section>
+
+          <!-- =============================================================== -->
+          <!-- 區塊 6：每日行程（Day 1 ~ Day 5 時間軸卡片）                      -->
+          <!-- =============================================================== -->
+          <section id="sec-6" class="space-y-4">
+            <div class="flex items-center gap-2.5">
+              <span class="w-9 h-9 rounded-xl bg-crimson-600 text-gold-200 font-black flex items-center justify-center text-base shadow">6</span>
+              <div>
+                <h2 class="font-serif font-black text-xl sm:text-2xl text-crimson-900">每日行程時間軸（Day 1 ～ Day 5）</h2>
+                <p class="text-xs text-stone-500">清楚掌握每日動線、特色景點、早午晚餐食與下榻飯店</p>
+              </div>
+            </div>
+
+            <div class="space-y-4">
+              ${tour.itinerary.map(item => `
+                <div class="bg-white rounded-3xl border border-gold-300/75 cny-card overflow-hidden">
+                  <div class="flex flex-col md:flex-row">
+                    <!-- 左側 Day 標章 -->
+                    <div class="md:w-28 bg-gradient-to-br from-crimson-700 to-crimson-900 text-gold-100 p-4 flex md:flex-col items-center justify-between md:justify-center gap-1 shrink-0 border-b md:border-b-0 md:border-r border-gold-500/40">
+                      <span class="text-xs font-black tracking-widest text-gold-300">DAY</span>
+                      <span class="font-serif font-black text-3xl sm:text-4xl leading-none">${item.day}</span>
+                    </div>
+
+                    <!-- 右側當日內容 -->
+                    <div class="p-5 flex-1 space-y-3.5">
+                      <div>
+                        <p class="font-extrabold text-sm sm:text-base text-crimson-950 leading-relaxed">${escapeHtml(item.route)}</p>
+                        <div class="flex flex-wrap gap-1.5 mt-2">
+                          ${item.spots.map(sp => `
+                            <span class="px-2.5 py-0.5 rounded-full bg-gold-50 border border-gold-300 text-crimson-800 text-[11px] font-bold">📍 ${escapeHtml(sp)}</span>
+                          `).join('')}
+                        </div>
+                      </div>
+
+                      <!-- 早午晚三餐與飯店 -->
+                      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 pt-3 border-t border-ivory-200 text-xs">
+                        <div class="p-2.5 rounded-xl bg-ivory-100/80 border border-ivory-200">
+                          <span class="font-black text-amber-700 block mb-0.5">🌅 早餐</span>
+                          <span class="text-stone-700 leading-snug">${escapeHtml(item.b)}</span>
+                        </div>
+                        <div class="p-2.5 rounded-xl bg-ivory-100/80 border border-ivory-200">
+                          <span class="font-black text-crimson-700 block mb-0.5">☀️ 午餐</span>
+                          <span class="text-stone-700 leading-snug">${escapeHtml(item.l)}</span>
+                        </div>
+                        <div class="p-2.5 rounded-xl bg-ivory-100/80 border border-ivory-200">
+                          <span class="font-black text-crimson-900 block mb-0.5">🌙 晚餐</span>
+                          <span class="text-stone-700 leading-snug">${escapeHtml(item.d)}</span>
+                        </div>
+                        <div class="p-2.5 rounded-xl bg-gold-50/70 border border-gold-200">
+                          <span class="font-black text-gold-700 block mb-0.5">🏨 住宿</span>
+                          <span class="text-stone-800 font-semibold leading-snug">${escapeHtml(item.hotel)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </section>
+
+          <!-- =============================================================== -->
+          <!-- 區塊 7：優惠資料與業務促單工具（LINE 報價文案產生器）             -->
+          <!-- =============================================================== -->
+          <section id="sec-7" class="rounded-3xl bg-gradient-to-br from-crimson-950 via-crimson-800 to-crimson-900 text-white border-2 border-gold-500 p-6 sm:p-8 shadow-xl space-y-6">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div class="flex items-center gap-3">
+                <span class="w-9 h-9 rounded-xl bg-gold-500 text-crimson-950 font-black flex items-center justify-center text-base">7</span>
+                <div>
+                  <h2 class="font-serif font-black text-xl sm:text-2xl text-gold-100">新春預購優惠＆專屬報價分享</h2>
+                  <p class="text-xs text-gold-200/90">「迎春、賀歲」行程預購優惠延長到 12/18 前適用！</p>
+                </div>
+              </div>
+              <span class="px-3.5 py-1.5 rounded-full bg-gold-500 text-crimson-950 text-xs font-black shadow">
+                ${getPromoCountdownText()}
+              </span>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              <!-- 左側：優惠重點卡片（＋業務專屬話術卡） -->
+              <div class="lg:col-span-5 space-y-4">
+                <div class="rounded-2xl bg-white/10 border border-gold-400/50 p-5 space-y-3 backdrop-blur-sm">
+                  <h3 class="font-serif font-black text-lg text-gold-200">🧧 12/18 前早鳥預購專案</h3>
+                  <ul class="space-y-2 text-xs sm:text-sm text-gold-50/95 leading-relaxed">
+                    <li class="flex items-start gap-2"><span class="text-gold-300">✦</span><span><strong>限時延長優惠：</strong>「迎春、賀歲」全系列預購優惠延長至 <strong>12/18 前</strong> 適用，提早下訂享早鳥專案禮遇！</span></li>
+                    <li class="flex items-start gap-2"><span class="text-gold-300">✦</span><span><strong>已選報價檔期：</strong>${selectedDep.date} (${selectedDep.day})・<strong>${formatPrice(selectedDep.price)}</strong>${selectedDep.confirmed ? '（🔥 已成行）' : ''}</span></li>
+                    <li class="flex items-start gap-2"><span class="text-gold-300">✦</span><span><strong>安心保障：</strong>透明韓幣餐標、明確飯店規格與航班參考時段，帶家人過年出遊最省心。</span></li>
+                  </ul>
+                </div>
+
+                ${showInternal ? `
+                  <div class="rounded-2xl bg-black/35 border border-gold-300/40 p-5 space-y-2">
+                    <div class="text-xs font-black text-gold-300">💼 業務成交促單話術（客戶模式自動隱藏）</div>
+                    <p class="text-xs sm:text-sm text-gold-50/90 leading-relaxed">
+                      「${escapeHtml(tour.salesPitch)} 而且 12/18 前預購優惠剛延長，現在先卡位最划算，要不要我先幫您把 ${selectedDep.date} 的名額保留下來？」
+                    </p>
+                  </div>
+                ` : ''}
+              </div>
+
+              <!-- 右側：連動日期價格的 LINE 專屬推銷文案產生器 -->
+              <div class="lg:col-span-7 rounded-2xl bg-white text-ink p-5 space-y-3 shadow-lg">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <h3 class="font-extrabold text-sm sm:text-base text-crimson-900">💬 LINE 專屬報價推銷文案（自動連動日期價格）</h3>
+                    <p class="text-[11px] text-stone-500">上方第 1 區切換日期時，下方文案與團費即時更新</p>
+                  </div>
+                  <button
+                    type="button"
+                    onclick="copyTourQuote('${tour.id}')"
+                    class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs sm:text-sm shadow transition-colors"
+                  >
+                    📋 一鍵複製 LINE 報價
+                  </button>
+                </div>
+
+                <textarea
+                  readonly
+                  rows="11"
+                  class="w-full rounded-xl bg-ivory-100 border border-ivory-300 p-3.5 text-xs text-stone-800 font-sans leading-relaxed focus:outline-none focus:ring-2 focus:ring-gold-500"
+                >${escapeHtml(generateLineQuote(tour))}</textarea>
+              </div>
+            </div>
+          </section>
+        </div>
+      `;
+    }
+
+    /**
+     * 渲染擬真登機證卡片
+     */
+    function renderBoardingPass(label, airline, leg, isReturn) {
+      return `
+        <div class="rounded-2xl border-2 ${isReturn ? 'border-gold-300 bg-ivory-100/70' : 'border-crimson-200 bg-crimson-50/35'} overflow-hidden">
+          <div class="px-4 py-2.5 ${isReturn ? 'bg-gold-500 text-crimson-950' : 'bg-crimson-700 text-gold-100'} flex items-center justify-between text-xs font-black">
+            <span>${isReturn ? '🛬' : '🛫'} ${label}</span>
+            <span class="font-mono tracking-wider">${escapeHtml(airline)} ${escapeHtml(leg.no)}</span>
+          </div>
+          <div class="p-4 sm:p-5 space-y-3">
+            <div class="grid grid-cols-3 items-center gap-2 text-center">
+              <div class="text-left">
+                <div class="font-black text-2xl sm:text-3xl text-ink tracking-tight">${escapeHtml(leg.depTime)}</div>
+                <div class="text-xs sm:text-sm font-bold text-stone-700 mt-0.5">${escapeHtml(leg.dep)}</div>
+              </div>
+              <div class="flex flex-col items-center">
+                <span class="text-[11px] font-bold text-crimson-700">${escapeHtml(leg.dur)}</span>
+                <div class="w-full flex items-center gap-1 my-1">
+                  <span class="h-0.5 flex-1 bg-gold-400"></span>
+                  <span class="text-crimson-600 text-sm">✈</span>
+                  <span class="h-0.5 flex-1 bg-gold-400"></span>
+                </div>
+                <span class="text-[10px] font-semibold text-stone-500">直飛</span>
+              </div>
+              <div class="text-right">
+                <div class="font-black text-2xl sm:text-3xl text-crimson-700 tracking-tight">${escapeHtml(leg.arrTime)}</div>
+                <div class="text-xs sm:text-sm font-bold text-stone-700 mt-0.5">${escapeHtml(leg.arr)}</div>
+              </div>
+            </div>
+            <div class="pt-2.5 border-t border-dashed border-gold-300 text-xs text-stone-600">
+              💡 ${escapeHtml(leg.note)}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    /**
+     * 渲染頁尾與底部常駐快捷列
+     */
+    function renderFooterAndBottomBar() {
+      const activeTour = TOURS.find(t => t.id === state.activeTab);
+      const selectedDep = activeTour ? (activeTour.departures[state.selectedDateIdx[activeTour.id] || 0] || activeTour.departures[0]) : null;
+
+      return `
+        <footer class="mt-14 bg-crimson-950 text-gold-100/85 py-8 border-t-2 border-gold-500/60 pb-24">
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+            <div class="flex items-center gap-2">
+              <span class="w-7 h-7 rounded-lg bg-crimson-700 border border-gold-400 text-gold-200 font-serif font-black flex items-center justify-center">春</span>
+              <span class="font-bold text-gold-100">春節｜2027 韓國迎春・賀歲精選 5 日遊</span>
+            </div>
+            <p class="text-center sm:text-right text-gold-200/90">
+              🧧 迎春、賀歲行程預購優惠延長到 12/18 前適用｜參考航班時間僅供參考，以說明會資料為準
+            </p>
+          </div>
+        </footer>
+
+        <!-- 底部常駐快捷操作列 -->
+        <div class="fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-gold-400/70 shadow-2xl">
+          <div class="max-w-7xl mx-auto px-3 sm:px-6 py-2.5 flex items-center justify-between gap-3">
+            ${activeTour ? `
+              <div class="min-w-0">
+                <div class="text-xs font-extrabold text-crimson-900 truncate">${activeTour.numBadge} ${activeTour.shortTitle}</div>
+                <div class="text-[11px] sm:text-xs text-stone-600 truncate">
+                  已選 <strong>${selectedDep.date} (${selectedDep.day})</strong>・<strong class="text-crimson-600">${formatPrice(selectedDep.price)}</strong>
+                </div>
+              </div>
+              <div class="flex items-center gap-2 shrink-0">
+                <button type="button" onclick="scrollToSection('sec-1')" class="hidden sm:inline-flex px-3 py-2 rounded-xl bg-ivory-200 hover:bg-gold-200 text-crimson-900 text-xs font-extrabold transition-colors">
+                  📅 換日期
+                </button>
+                <button type="button" onclick="copyTourQuote('${activeTour.id}')" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-extrabold shadow transition-colors">
+                  📋 複製 LINE 報價
+                </button>
+              </div>
+            ` : `
+              <div class="min-w-0">
+                <div class="text-xs sm:text-sm font-extrabold text-crimson-900 truncate">🧧 2027 迎春・賀歲 6 行程總覽（12/18 前享預購優惠）</div>
+                <div class="text-[11px] text-stone-500 hidden sm:block">點擊任一分頁按鈕查看 7 大細節，或點右側快速複製總覽推薦話術</div>
+              </div>
+              <div class="flex items-center gap-2 shrink-0">
+                ${(!state.isClientMode && !state.clientOnlyLocked) ? `
+                  <button type="button" onclick="openModal('export')" class="px-3.5 py-2 rounded-xl bg-crimson-600 hover:bg-crimson-700 text-gold-100 text-xs font-extrabold shadow transition-colors">
+                    💾 匯出成品檔
+                  </button>
+                ` : ''}
+                <button type="button" onclick="copyGlobalPromoPitch()" class="px-3.5 py-2 rounded-xl bg-gold-500 hover:bg-gold-400 text-crimson-950 text-xs font-extrabold shadow transition-colors">
+                  📋 複製 12/18 優惠總覽
+                </button>
+              </div>
+            `}
+          </div>
+        </div>
+      `;
+    }
+
+    // =========================================================================
+    // 10. 彈窗系統：批次實景照管理總管 Modal ＋ 一鍵匯出成品網頁 Modal
+    // =========================================================================
+    function renderModals() {
+      const root = document.getElementById('modal-root');
+      if (!root) return;
+
+      if (!state.activeModal || state.clientOnlyLocked) {
+        root.innerHTML = '';
+        return;
+      }
+
+      if (state.activeModal === 'manager') {
+        const uploadedCount = getUploadedCount();
+        const visibleTours = state.managerFilterTour === 'all'
+          ? TOURS
+          : TOURS.filter(t => t.id === state.managerFilterTour);
+
+        root.innerHTML = `
+          <div class="fixed inset-0 z-[70] bg-crimson-950/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5" onclick="if(event.target===this) closeModal()">
+            <div class="bg-ivory-100 w-full max-w-5xl max-h-[90vh] rounded-3xl border-2 border-gold-400 shadow-2xl flex flex-col overflow-hidden fade-in">
+              <!-- Modal Header -->
+              <div class="px-5 sm:px-7 py-4 bg-gradient-to-r from-crimson-900 to-crimson-700 text-white flex flex-wrap items-center justify-between gap-3 shrink-0">
+                <div>
+                  <h2 class="font-serif font-black text-lg sm:text-xl text-gold-100">📷 批次管理各景點實景照（${uploadedCount} / ${TOTAL_SLOTS}）</h2>
+                  <p class="text-xs text-gold-200/90 mt-0.5">點擊或直接把電腦裡的照片拖曳到對應插槽即可上傳・自動壓縮最大寬 1000px JPEG 並暫存</p>
+                </div>
+                <div class="flex items-center gap-2">
+                  ${uploadedCount > 0 ? `
+                    <button type="button" onclick="openModal('confirmClearAll')" class="px-3 py-1.5 rounded-xl bg-black/30 hover:bg-crimson-600 text-gold-200 text-xs font-bold border border-gold-400/40">
+                      🗑️ 全部清空
+                    </button>
+                  ` : ''}
+                  <button type="button" onclick="closeModal()" class="w-9 h-9 rounded-xl bg-white/15 hover:bg-white/25 text-white font-black text-lg flex items-center justify-center">✕</button>
+                </div>
+              </div>
+
+              <!-- 分團快速切換篩選條 -->
+              <div class="px-5 sm:px-7 py-3 bg-white border-b border-ivory-300 flex items-center gap-1.5 overflow-x-auto no-scrollbar shrink-0">
+                <button type="button" onclick="setManagerFilter('all')" class="shrink-0 px-3 py-1.5 rounded-xl text-xs font-extrabold border ${state.managerFilterTour === 'all' ? 'bg-crimson-600 text-gold-100 border-gold-400' : 'bg-ivory-100 text-stone-700 border-ivory-300'}">
+                  全部 6 行程 (${uploadedCount}/30)
+                </button>
+                ${TOURS.map(t => {
+                  const tCount = ['cover', 'h0', 'h1', 'h2', 'h3'].filter(s => state.photos[`${t.id}_${s}`]).length;
+                  const act = state.managerFilterTour === t.id;
+                  return `
+                    <button type="button" onclick="setManagerFilter('${t.id}')" class="shrink-0 px-3 py-1.5 rounded-xl text-xs font-extrabold border ${act ? 'bg-crimson-600 text-gold-100 border-gold-400' : 'bg-ivory-100 text-stone-700 border-ivory-300'}">
+                      ${t.numBadge} ${t.shortTitle.replace(/^(迎春|賀歲)｜/, '')} (${tCount}/5)
+                    </button>
+                  `;
+                }).join('')}
+              </div>
+
+              <!-- 滾動插槽清單 -->
+              <div class="p-5 sm:p-7 overflow-y-auto space-y-6 flex-1">
+                ${visibleTours.map(tour => {
+                  const slots = [
+                    { slot: 'cover', title: '行程封面圖（選填，未上傳將自動借用第1張景點照）', theme: tour.coverTheme },
+                    ...tour.highlights.map((h, i) => ({ slot: h.slot, title: `賣點 ${i + 1}：${h.title}`, theme: h.theme }))
+                  ];
+                  return `
+                    <div class="bg-white rounded-2xl border border-gold-300/70 p-4 sm:p-5 space-y-3.5 shadow-sm">
+                      <div class="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-ivory-200">
+                        <h3 class="font-serif font-black text-base text-crimson-900">${tour.numBadge} ${tour.title}</h3>
+                        <span class="text-xs font-bold text-stone-500">${tour.seriesLabel}・${tour.originLabel}</span>
+                      </div>
+                      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                        ${slots.map(s => {
+                          const key = `${tour.id}_${s.slot}`;
+                          const src = state.photos[key];
+                          return `
+                            <div class="flex flex-col gap-1.5">
+                              <div
+                                onclick="triggerSlotUpload('${key}', event)"
+                                ondragover="onSlotDragOver(event)"
+                                ondragleave="onSlotDragLeave(event)"
+                                ondrop="onSlotDrop(event, '${key}')"
+                                class="relative aspect-[4/3] rounded-xl overflow-hidden border-2 ${src ? 'border-emerald-500' : 'border-dashed border-gold-400 bg-ivory-100'} cursor-pointer group transition-all flex items-center justify-center"
+                              >
+                                ${src ? `
+                                  <img src="${src}" alt="${escapeHtml(s.title)}" class="w-full h-full object-cover" />
+                                  <div class="absolute inset-0 bg-black/45 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                    <span class="px-2.5 py-1 rounded-lg bg-gold-500 text-crimson-950 text-[11px] font-black">更換照片</span>
+                                  </div>
+                                ` : `
+                                  <div class="text-center p-2">
+                                    <div class="text-xl mb-1">📷</div>
+                                    <div class="text-[11px] font-extrabold text-crimson-800">點擊或拖曳上傳</div>
+                                  </div>
+                                `}
+                                <div class="drop-hint-overlay opacity-0 absolute inset-0 z-20 bg-crimson-950/85 flex items-center justify-center text-gold-200 text-xs font-black p-2 text-center">
+                                  放開以上傳
+                                </div>
+                              </div>
+                              <div class="flex items-start justify-between gap-1">
+                                <p class="text-[11px] font-bold text-stone-700 leading-tight line-clamp-2">${escapeHtml(s.title)}</p>
+                                ${src ? `
+                                  <button type="button" onclick="clearSlotPhoto('${key}', event)" class="shrink-0 text-[10px] px-1.5 py-0.5 rounded bg-crimson-100 hover:bg-crimson-600 text-crimson-700 hover:text-white font-bold" title="單張重置">重置</button>
+                                ` : ''}
+                              </div>
+                            </div>
+                          `;
+                        }).join('')}
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+
+              <!-- Modal Footer -->
+              <div class="px-5 sm:px-7 py-3.5 bg-white border-t border-gold-300/60 flex flex-wrap items-center justify-between gap-3 shrink-0">
+                <p class="text-xs text-stone-600">上傳完成後，建議立刻匯出獨立 HTML 成品檔永久保存並分享給團隊或客戶。</p>
+                <div class="flex items-center gap-2">
+                  <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-xl bg-ivory-200 hover:bg-ivory-300 text-stone-800 text-xs font-extrabold">繼續編輯網頁</button>
+                  <button type="button" onclick="openModal('export')" class="px-4 py-2 rounded-xl bg-crimson-600 hover:bg-crimson-700 text-gold-100 text-xs font-extrabold shadow">💾 前往匯出成品網頁 →</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      if (state.activeModal === 'export') {
+        const uploadedCount = getUploadedCount();
+        root.innerHTML = `
+          <div class="fixed inset-0 z-[70] bg-crimson-950/75 backdrop-blur-sm flex items-center justify-center p-4" onclick="if(event.target===this) closeModal()">
+            <div class="bg-ivory-100 w-full max-w-2xl rounded-3xl border-2 border-gold-400 shadow-2xl overflow-hidden fade-in">
+              <div class="px-6 py-4 bg-gradient-to-r from-crimson-900 to-crimson-700 text-white flex items-center justify-between">
+                <div>
+                  <h2 class="font-serif font-black text-xl text-gold-100">💾 匯出內含實景照的獨立離線網頁</h2>
+                  <p class="text-xs text-gold-200 mt-0.5">目前已準備好 <strong>${uploadedCount} / ${TOTAL_SLOTS}</strong> 張壓縮實景照，將完整打包進單一 HTML 檔案中</p>
+                </div>
+                <button type="button" onclick="closeModal()" class="w-9 h-9 rounded-xl bg-white/15 hover:bg-white/25 text-white font-black flex items-center justify-center">✕</button>
+              </div>
+
+              <div class="p-6 space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <!-- 選項 1：業務簡報完整版 -->
+                  <div class="bg-white rounded-2xl border-2 border-crimson-300 p-5 flex flex-col justify-between gap-4 shadow-sm">
+                    <div class="space-y-2">
+                      <span class="inline-block px-2.5 py-0.5 rounded-full bg-crimson-100 text-crimson-700 text-[11px] font-black">給業務同仁使用</span>
+                      <h3 class="font-serif font-black text-lg text-crimson-900">💼 業務簡報完整版 (.html)</h3>
+                      <ul class="text-xs text-stone-600 space-y-1.5 leading-relaxed">
+                        <li>✔ 內嵌全部已上傳實景照，離線打開絕不破圖</li>
+                        <li>✔ 保留 LINE 報價產生器、產品代碼、剩餘席次與業務話術</li>
+                        <li>✔ 保留右上角「客戶展示模式」切換與後續換圖功能</li>
+                      </ul>
+                    </div>
+                    <button
+                      type="button"
+                      onclick="exportStandaloneHtml(false)"
+                      class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-crimson-600 to-crimson-800 hover:from-crimson-700 hover:to-crimson-950 text-gold-100 font-extrabold text-sm shadow transition-all"
+                    >
+                      ⬇️ 下載業務簡報完整版
+                    </button>
+                  </div>
+
+                  <!-- 選項 2：客戶純淨展示版 -->
+                  <div class="bg-white rounded-2xl border-2 border-gold-400 p-5 flex flex-col justify-between gap-4 shadow-sm">
+                    <div class="space-y-2">
+                      <span class="inline-block px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-black">直接傳給客戶瀏覽</span>
+                      <h3 class="font-serif font-black text-lg text-crimson-900">👁️ 客戶純淨展示版 (.html)</h3>
+                      <ul class="text-xs text-stone-600 space-y-1.5 leading-relaxed">
+                        <li>✔ 內嵌全部已上傳實景照，打開就是最美春節手冊</li>
+                        <li>✔ <strong>自動鎖定純淨客戶模式</strong>，隱藏換圖鈕與匯出工具</li>
+                        <li>✔ 自動隱藏產品代碼、剩餘席次數字與內部促單話術</li>
+                      </ul>
+                    </div>
+                    <button
+                      type="button"
+                      onclick="exportStandaloneHtml(true)"
+                      class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-gold-500 to-gold-600 hover:from-gold-400 hover:to-gold-500 text-crimson-950 font-black text-sm shadow transition-all"
+                    >
+                      ⬇️ 下載客戶純淨展示版
+                    </button>
+                  </div>
+                </div>
+
+                <div class="p-3.5 rounded-xl bg-gold-50 border border-gold-300 text-xs text-stone-700 leading-relaxed">
+                  <strong>💡 小提醒：</strong>下載後的 <code class="font-mono bg-white px-1.5 py-0.5 rounded border border-gold-200">.html</code> 檔案為單一獨立檔，不需額外圖檔資料夾，可直接透過 LINE、Email 或雲端傳給業務夥伴與貴賓，用電腦或手機瀏覽器點開就能直接看！
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      if (state.activeModal === 'confirmClearAll') {
+        root.innerHTML = `
+          <div class="fixed inset-0 z-[80] bg-crimson-950/75 backdrop-blur-sm flex items-center justify-center p-4" onclick="if(event.target===this) openModal('manager')">
+            <div class="bg-white w-full max-w-md rounded-3xl border-2 border-crimson-300 p-6 shadow-2xl space-y-4 fade-in">
+              <div class="flex items-center gap-3">
+                <span class="w-11 h-11 rounded-2xl bg-crimson-100 text-crimson-700 flex items-center justify-center text-2xl shrink-0">⚠️</span>
+                <div>
+                  <h3 class="font-serif font-black text-lg text-crimson-900">確認清空全部實景照？</h3>
+                  <p class="text-xs text-stone-500 mt-0.5">將清除本機暫存的 ${getUploadedCount()} 張照片並還原預設佔位圖</p>
+                </div>
+              </div>
+              <div class="flex items-center justify-end gap-2 pt-2">
+                <button type="button" onclick="openModal('manager')" class="px-4 py-2 rounded-xl bg-ivory-200 hover:bg-ivory-300 text-stone-700 text-xs font-extrabold">取消返回</button>
+                <button type="button" onclick="clearAllPhotosConfirmed()" class="px-4 py-2 rounded-xl bg-crimson-600 hover:bg-crimson-700 text-white text-xs font-extrabold shadow">確定全部清空</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    /**
+     * 主渲染函式
+     */
+    function renderAll() {
+      const app = document.getElementById('app');
+      if (!app) return;
+
+      const activeTour = TOURS.find(t => t.id === state.activeTab);
+      const bodyHtml = activeTour ? renderTourDetailView(activeTour) : renderHomeView();
+
+      app.innerHTML = `
+        ${renderHeader()}
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 min-h-[70vh]">
+          ${bodyHtml}
+        </main>
+        ${renderFooterAndBottomBar()}
+      `;
+
+      renderModals();
+    }
+
+    // 啟動初始化
+    window.addEventListener('DOMContentLoaded', () => {
+      loadPhotosAndConfig();
+      renderAll();
+    });
+  </script>
+</body>
+</html>
